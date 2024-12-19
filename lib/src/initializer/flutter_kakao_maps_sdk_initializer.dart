@@ -1,24 +1,42 @@
-part of flutter_kakao_maps_sdk;
+part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
 
 class KakaoMapsSDK {
   static final KakaoMapsSDK instance = KakaoMapsSDK();
 
-  bool _isInitialized = false;
+  static bool _debug = false;
 
-  /// 디버그 활성화 여부
-  bool debug = false;
+  final MethodChannel _initMethodChannel =
+      const MethodChannel(_initMethodChannelName, JSONMethodCodec());
 
-  void initialize() {
-    if (_isInitialized) return;
+  static const EventChannel _logEventChannel =
+      EventChannel(_logEventChannelName);
 
-    const EventChannel(_logEventChannelName)
-        .receiveBroadcastStream()
-        .listen((event) {
-      if (debug) {
-        debugPrint(event?.toString());
-      }
-    });
+  StreamSubscription<dynamic>? _stream;
 
-    _isInitialized = true;
+  Future<void> init({
+    required String appKey,
+    bool debug = false,
+  }) async {
+    _debug = debug;
+
+    _stream ??= _logEventChannel.receiveBroadcastStream().listen(
+      (event) {
+        if (_debug) {
+          debugPrint(event?.toString());
+        }
+      },
+    );
+
+    await _initMethodChannel.invokeMethod(
+      "init",
+      {
+        "appKey": appKey,
+      },
+    );
+  }
+
+  void dispose() {
+    _stream?.cancel();
+    _stream = null;
   }
 }

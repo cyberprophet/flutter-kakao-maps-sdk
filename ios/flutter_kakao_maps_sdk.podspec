@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_kakao_maps_sdk'
-  s.version          = '0.3.0'
+  s.version          = '0.4.0'
   s.summary          = 'KakaoMapsSDK for Flutter'
   s.description      = <<-DESC
   KakaoMapsSDK for Flutter
@@ -13,9 +13,9 @@ Pod::Spec.new do |s|
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'JERRY/JIHOON KIM' => 'hwjameshw@gmail.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'flutter_kakao_maps_sdk/Sources/flutter_kakao_maps_sdk/**/*.swift'
   s.dependency 'Flutter'
-  s.dependency 'KakaoMapsSDK','2.6.3'
+  s.dependency 'KakaoMapsSDK','2.12.2'
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.

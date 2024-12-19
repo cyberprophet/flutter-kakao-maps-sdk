@@ -1,4 +1,4 @@
-part of flutter_kakao_maps_sdk;
+part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
 
 class KakaoMapView extends StatefulWidget {
   /// 지도 옵션
@@ -22,8 +22,6 @@ class _KakaoMapViewState extends State<KakaoMapView> {
 
   @override
   void initState() {
-    KakaoMapsSDK.instance.initialize();
-
     super.initState();
   }
 

@@ -4,7 +4,12 @@ import 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
-  KakaoMapsSDK.instance.debug = true;
+  WidgetsFlutterBinding.ensureInitialized();
+
+  KakaoMapsSDK.instance.init(
+    appKey: '371ac0511d7242308a6a7f0e3b7afb67',
+    debug: true,
+  );
 
   runApp(const MyApp());
 }

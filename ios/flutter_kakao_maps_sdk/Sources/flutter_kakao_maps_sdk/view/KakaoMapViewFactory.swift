@@ -1,7 +1,8 @@
 import Flutter
 import KakaoMapsSDK
 
-class KakaoMapViewFactory: NSObject, FlutterPlatformViewFactory {
+@MainActor
+class KakaoMapViewFactory: NSObject, @preconcurrency FlutterPlatformViewFactory {
     private var messenger: FlutterBinaryMessenger
     
     init(messenger: FlutterBinaryMessenger) {

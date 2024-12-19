@@ -1,3 +1,5 @@
+import Foundation
+
 struct CompassOptions {
     var enabled: Bool
     var position: KakaoMapPosition

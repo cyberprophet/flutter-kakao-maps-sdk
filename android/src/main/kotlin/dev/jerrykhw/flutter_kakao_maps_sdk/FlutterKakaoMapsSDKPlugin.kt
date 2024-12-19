@@ -1,16 +1,21 @@
 package dev.jerrykhw.flutter_kakao_maps_sdk
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import com.kakao.vectormap.KakaoMapSdk
 import dev.jerrykhw.flutter_kakao_maps_sdk.util.LogStreamHandler
 import dev.jerrykhw.flutter_kakao_maps_sdk.view.KakaoMapViewFactory
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.JSONMethodCodec
+import io.flutter.plugin.common.MethodChannel
+import org.json.JSONObject
 import java.io.InputStream
 
 class FlutterKakaoMapsSDKPlugin : FlutterPlugin, ActivityAware {
+    private fun printLog(message: String) {
+        logStreamHandler.sendMessage("KakaoMapsSDK $message")
+    }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         pluginBinding = binding
@@ -18,6 +23,32 @@ class FlutterKakaoMapsSDKPlugin : FlutterPlugin, ActivityAware {
 
         val logEventChannel = EventChannel(binding.binaryMessenger, LOG_EVENT_CHANNEL_NAME)
         logEventChannel.setStreamHandler(logStreamHandler)
+
+        val initMethodChannel =
+            MethodChannel(
+                binding.binaryMessenger,
+                INIT_METHOD_CHANNEL_NAME,
+                JSONMethodCodec.INSTANCE
+            )
+
+        initMethodChannel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "init" -> {
+                    printLog("init")
+
+                    val appKey = (call.arguments as JSONObject).getString("appKey") ?: run {
+                        result.error("NOT_FOUND_APP_KEY", "appKey is null", null)
+                        return@setMethodCallHandler
+                    }
+
+                    KakaoMapSdk.init(binding.applicationContext, appKey)
+
+                    result.success(null)
+                }
+
+                else -> result.notImplemented()
+            }
+        }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) = Unit
@@ -42,6 +73,8 @@ class FlutterKakaoMapsSDKPlugin : FlutterPlugin, ActivityAware {
         private const val BASE_ID = "dev.jerrykhw.flutter_kakao_maps_sdk"
 
         private const val LOG_EVENT_CHANNEL_NAME = "${BASE_ID}/log"
+
+        private const val INIT_METHOD_CHANNEL_NAME = "${BASE_ID}/init"
 
         private const val KAKAO_MAP_VIEW_VIEW_ID = "${BASE_ID}/kakao_map_view"
 

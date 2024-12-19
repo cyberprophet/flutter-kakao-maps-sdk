@@ -1,4 +1,4 @@
-part of flutter_kakao_maps_sdk;
+part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
 
 /// Poi 경챙 처리 단위
 enum KakaoMapCompetitionUnit {

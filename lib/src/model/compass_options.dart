@@ -1,4 +1,4 @@
-part of flutter_kakao_maps_sdk;
+part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
 
 /// 나침반 설정
 class CompassOptions {

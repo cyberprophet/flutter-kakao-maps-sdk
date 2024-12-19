@@ -3,7 +3,6 @@ package dev.jerrykhw.flutter_kakao_maps_sdk.view
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.PointF
 import android.view.View
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
@@ -38,8 +37,6 @@ import dev.jerrykhw.flutter_kakao_maps_sdk.util.px
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import org.json.JSONObject
-import java.io.File
-import java.io.FileInputStream
 
 internal class KakaoMapView(
     private val activity: Activity,

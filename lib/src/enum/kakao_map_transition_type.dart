@@ -1,4 +1,4 @@
-part of flutter_kakao_maps_sdk;
+part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
 
 /// 애니메이션 타입
 enum KakaoMapTransitionType {

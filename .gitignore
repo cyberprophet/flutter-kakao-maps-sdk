@@ -7,7 +7,6 @@
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.fvm/flutter_sdk
 .packages
 .pub-cache/
 .pub/
@@ -74,7 +73,6 @@ pubspec.lock
 # Icon must end with two \r
 Icon
 
-
 # Thumbnails
 ._*
 
@@ -118,3 +116,6 @@ Temporary Items
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,macos,flutter
+
+# FVM Version Cache
+.fvm/

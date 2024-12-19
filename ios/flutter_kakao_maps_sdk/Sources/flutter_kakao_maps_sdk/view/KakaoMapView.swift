@@ -1,7 +1,8 @@
-import Flutter
+@preconcurrency import Flutter
 import KakaoMapsSDK
 
-class KakaoMapView: NSObject, FlutterPlatformView, MapControllerDelegate {
+@MainActor
+class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurrency MapControllerDelegate {
     private let mapViewContainer: KMViewContainer
     private let mapController: KMController
     private var mapView: KakaoMap?
@@ -48,8 +49,7 @@ class KakaoMapView: NSObject, FlutterPlatformView, MapControllerDelegate {
     func dispose(result: @escaping (Any?) -> ()) {
         printLog("stopEngine")
         
-        mapController.stopRendering()
-        mapController.stopEngine()
+        mapController.pauseEngine()
         
         viewMethodChannel.setMethodCallHandler(nil)
         
@@ -538,9 +538,9 @@ class KakaoMapView: NSObject, FlutterPlatformView, MapControllerDelegate {
         self.viewMethodChannel = viewMethodChannel
         
         mapViewContainer = KMViewContainer(frame: frame)
-        mapController = KMController(viewContainer: mapViewContainer)!
+        mapController = KMController(viewContainer: mapViewContainer)
         
-        if mapViewContainer.proMotionDisplay == true {
+        if  mapViewContainer.proMotionDisplay == true {
             mapController.proMotionSupport = true
         }
         
@@ -553,39 +553,46 @@ class KakaoMapView: NSObject, FlutterPlatformView, MapControllerDelegate {
         printLog("init")
     }
     
-    func authenticationSucceeded() {
-        printLog("auth success")
-        
-        if auth == false {
-            auth = true
-            self.mapController.startEngine()
-            self.mapController.startRendering()
+    nonisolated func authenticationSucceeded() {
+        Task { @MainActor in
+            printLog("auth success")
+            
+            if auth == false {
+                auth = true
+                self.mapController.activateEngine()
+            }
         }
     }
     
-    func authenticationFailed(_ errorCode: Int, desc: String) {
-        printLog("auth error code: \(errorCode)")
-        printLog("auth desc: \(desc)")
-        
-        auth = false
-        
-        switch errorCode {
-        case 499:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.printLog("auth retry")
-                
-                self.mapController.authenticate()
+    nonisolated func authenticationFailed(_ errorCode: Int, desc: String) {
+        Task { @MainActor in
+            printLog("auth error code: \(errorCode)")
+            printLog("auth desc: \(desc)")
+            
+            auth = false
+            
+            switch errorCode {
+            case 499:
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.printLog("auth retry")
+                    
+                    self.mapController.prepareEngine()
+                }
+                break;
+            default:
+                break;
             }
-            break;
-        default:
-            break;
         }
     }
     
     func addViews() {
         let mapViewInfo = MapviewInfo(viewName: options.viewName, appName: options.appName, viewInfoName: options.viewInfoName, defaultPosition: options.defaultPosition, defaultLevel: options.defaultLevel, enabled: options.enabled)
         
-        if mapController.addView(mapViewInfo) == Result.OK {
+        mapController.addView(mapViewInfo)
+    }
+    
+    nonisolated func addViewSucceeded(_ viewName: String, viewInfoName: String) {
+        Task { @MainActor in
             mapView = mapController.getView(options.viewName) as? KakaoMap
             
             if let mapView = self.mapView {
@@ -629,16 +636,15 @@ class KakaoMapView: NSObject, FlutterPlatformView, MapControllerDelegate {
     
     func view() -> UIView {
         printLog("initEngine")
-        mapController.initEngine()
+        mapController.prepareEngine()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if self.auth {
                 self.printLog("startEngine")
-                self.mapController.startEngine()
-                self.mapController.startRendering()
+                self.mapController.activateEngine()
             } else {
                 self.printLog("authenticate")
-                self.mapController.authenticate()
+                self.mapController.prepareEngine()
             }
         }
         

@@ -1,5 +1,6 @@
 library flutter_kakao_maps_sdk;
 
+import "dart:async";
 import "dart:io";
 
 import "package:flutter/foundation.dart";
