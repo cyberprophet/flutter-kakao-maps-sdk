@@ -2,7 +2,7 @@
 
 KakaoMapsSDK for Flutter
 
-⚠️ 현재 개발 진행중인 패키지입니다.
+[![Android](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/android.yml/badge.svg?branch=dev&event=push)](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/android.yml)
 
 ## Requirements
 
