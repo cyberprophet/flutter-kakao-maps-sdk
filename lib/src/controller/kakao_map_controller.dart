@@ -19,13 +19,8 @@ class KakaoMapController {
           _onCameraMove!(CameraPosition.fromJson(call.arguments));
           break;
 
-        case "onMapReady":
-          if (_onMapReady != null) {
-            _onMapReady!(this);
-          }
-          break;
-
-        default:
+        case "onMapReady" when _onMapReady != null:
+          _onMapReady!(this);
           break;
       }
     });

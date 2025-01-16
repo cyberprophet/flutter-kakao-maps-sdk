@@ -54,31 +54,46 @@ internal class KakaoMapView(
     private val viewMethodCallHandler = MethodChannel.MethodCallHandler { call, result ->
         when (call.method) {
             "dispose" -> dispose(result)
+
             "addPoi" -> addPoi(call.arguments as JSONObject, result)
             "removePoi" -> removePoi(call.arguments as JSONObject, result)
+
             "addPoiIconStyle" -> addPoiIconStyle(call.arguments as JSONObject, result)
             "changePoiIconStyle" -> changePoiIconStyle(call.arguments as JSONObject, result)
+
             "addLabelLayer" -> addLabelLayer(call.arguments as JSONObject, result)
+
             "moveCamera" -> moveCamera(call.arguments as JSONObject, result)
             "animateCamera" -> animateCamera(call.arguments as JSONObject, result)
+
             "moveCameraTransform" -> moveCameraTransform(call.arguments as JSONObject, result)
             "animateCameraTransform" -> animateCameraTransform(
                 call.arguments as JSONObject, result
             )
 
+            "addRouteLine"-> addRouteLine(call.arguments as JSONObject, result)
+
             "getCameraPosition" -> getCameraPosition(result)
 
             "setViewInfo" -> setViewInfo(call.arguments as JSONObject, result)
+
             "showOverlay" -> showOverlay(call.arguments as JSONObject, result)
             "hideOverlay" -> hideOverlay(call.arguments as JSONObject, result)
+
             "setEnabled" -> setEnabled(call.arguments as JSONObject, result)
+
             "setBuildingScale" -> setBuildingScale(call.arguments as JSONObject, result)
             "getPadding" -> getPadding(result)
             "setPadding" -> setPadding(call.arguments as JSONObject, result)
+
             "setLogoPosition" -> setLogoPosition(call.arguments as JSONObject, result)
+
             "setPoiOptions" -> setPoiOptions(call.arguments as JSONObject, result)
+
             "setCompassOptions" -> setCompassOptions(call.arguments as JSONObject, result)
+
             "setScaleBarOptions" -> setScaleBarOptions(call.arguments as JSONObject, result)
+
             else -> result.notImplemented()
         }
     }
@@ -443,6 +458,16 @@ internal class KakaoMapView(
         mapView.moveCamera(cameraUpdate, cameraAnimationOptions)
 
         result.success(null)
+    }
+
+    private fun addRouteLine(arguments: JSONObject, result: MethodChannel.Result){
+        printLog("addRouteLine")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+        val layer = mapView.getRouteLineManager().getLayer()
     }
 
     private fun getCameraPosition(result: MethodChannel.Result) {

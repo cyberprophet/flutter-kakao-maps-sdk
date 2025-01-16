@@ -1,10 +1,8 @@
 part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
 
 class KakaoMapView extends StatefulWidget {
-  /// 지도 옵션
   final KakaoMapOptions options;
 
-  /// 지도 생성 후 콜백
   final void Function(KakaoMapController controller)? onMapReady;
   final void Function(CameraPosition)? onCameraMove;
 
@@ -59,6 +57,7 @@ class _KakaoMapViewState extends State<KakaoMapView> {
           creationParamsCodec: creationParamsCodec,
           onPlatformViewCreated: _onPlatformViewCreated,
         );
+
       case TargetPlatform.iOS:
         return UiKitView(
           viewType: viewType,
@@ -66,6 +65,7 @@ class _KakaoMapViewState extends State<KakaoMapView> {
           creationParamsCodec: creationParamsCodec,
           onPlatformViewCreated: _onPlatformViewCreated,
         );
+
       default:
         throw PlatformException(code: "unsupportedPlatform");
     }
