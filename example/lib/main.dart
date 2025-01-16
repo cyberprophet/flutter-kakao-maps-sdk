@@ -18,7 +18,6 @@ Future main() async {
     appKey: dotenv.env['NATIVE']!,
     debug: kDebugMode,
   );
-
   runApp(const MyApp());
 }
 
@@ -179,6 +178,11 @@ class _MapTypeViewState extends State<MapTypeView> {
         options: const KakaoMapOptions(
           viewInfoName: KakaoMapViewInfo.map,
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -281,6 +285,11 @@ class _MapOverlayViewState extends State<MapOverlayView> {
         options: const KakaoMapOptions(
           overlay: null,
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -333,6 +342,11 @@ class _MapEnabledViewState extends State<MapEnabledView> {
         options: const KakaoMapOptions(
           enabled: false,
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -385,6 +399,11 @@ class _MapBuildingScaleViewState extends State<MapBuildingScaleView> {
         options: const KakaoMapOptions(
           buildingScale: 1,
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -452,6 +471,11 @@ class _MapPaddingViewState extends State<MapPaddingView> {
         options: const KakaoMapOptions(
           padding: EdgeInsets.zero,
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -596,6 +620,11 @@ class _MapLogoViewState extends State<MapLogoView> {
             y: 0,
           ),
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -690,6 +719,11 @@ class _MapPoiViewState extends State<MapPoiView> {
             scale: KakaoMapPoiScale.regular,
           ),
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -767,6 +801,11 @@ class _MapCompassViewState extends State<MapCompassView> {
             ),
           ),
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -782,6 +821,14 @@ class MapMoveView extends StatefulWidget {
 
 class _MapMoveViewState extends State<MapMoveView> {
   late final KakaoMapController kakaoMapController;
+
+  Future _onPressed() async {
+    final cp = await kakaoMapController.getCameraPosition();
+
+    if (kDebugMode) {
+      print('camera position:: $cp');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -805,6 +852,7 @@ class _MapMoveViewState extends State<MapMoveView> {
                     // await kakaoMapController.animateCamera(
                     //   target: const KakaoMapPoint(longitude: 126.972591728, latitude: 37.552987017),
                     // );
+                    _onPressed();
                     if (context.mounted) Navigator.pop(context);
                   },
                   child: const Text("서울역 이동"),
@@ -818,6 +866,7 @@ class _MapMoveViewState extends State<MapMoveView> {
                     // await kakaoMapController.animateCamera(
                     //   target: const KakaoMapPoint(longitude: 129.041418419, latitude: 35.115078556),
                     // );
+                    _onPressed();
                     if (context.mounted) Navigator.pop(context);
                   },
                   child: const Text("부산역 이동"),
@@ -844,6 +893,7 @@ class _MapMoveViewState extends State<MapMoveView> {
                     // await kakaoMapController.animateCameraTransform(
                     //   point: const KakaoMapPoint(longitude: 0, latitude: -0.000898),
                     // );
+                    _onPressed();
                     if (context.mounted) Navigator.pop(context);
                   },
                   child: const Text("하단 이동"),
@@ -857,6 +907,7 @@ class _MapMoveViewState extends State<MapMoveView> {
                     // await kakaoMapController.animateCameraTransform(
                     //   point: const KakaoMapPoint(longitude: -0.000898, latitude: 0),
                     // );
+                    _onPressed();
                     if (context.mounted) Navigator.pop(context);
                   },
                   child: const Text("왼쪽 이동"),
@@ -870,6 +921,7 @@ class _MapMoveViewState extends State<MapMoveView> {
                     // await kakaoMapController.animateCameraTransform(
                     //   point: const KakaoMapPoint(longitude: 0.000898, latitude: 0),
                     // );
+                    _onPressed();
                     if (context.mounted) Navigator.pop(context);
                   },
                   child: const Text("오른쪽 이동"),
@@ -883,6 +935,11 @@ class _MapMoveViewState extends State<MapMoveView> {
         options: const KakaoMapOptions(
           buildingScale: 1,
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -966,6 +1023,11 @@ class _MapScaleBarViewState extends State<MapScaleBarView> {
             ),
           ),
         ),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -1022,6 +1084,11 @@ class _MapLayerViewState extends State<MapLayerView> {
       ),
       body: KakaoMapView(
         options: const KakaoMapOptions(),
+        onCameraMove: (cp) {
+          if (kDebugMode) {
+            print(cp);
+          }
+        },
         onMapReady: (controller) async {
           labelLayer = await controller.addLabelLayer(layerID: "labelLayer1");
 

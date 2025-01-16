@@ -17,6 +17,13 @@ class KakaoMapPoint {
         longitude: longitude ?? this.longitude,
         latitude: latitude ?? this.latitude,
       );
+
+  factory KakaoMapPoint.fromJson(Map<String, dynamic> json) {
+    return KakaoMapPoint(
+      longitude: json['longitude'],
+      latitude: json['latitude'],
+    );
+  }
 }
 
 extension KakaoMapPointExtension on KakaoMapPoint {
