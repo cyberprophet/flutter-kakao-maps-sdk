@@ -2,7 +2,7 @@
 import KakaoMapsSDK
 
 @MainActor
-public class FlutterKakaoMapsSDKPlugin: NSObject, @preconcurrency FlutterPlugin {
+public class FlutterKakaoMapsPlugin: NSObject, @preconcurrency FlutterPlugin {
     private static var registrar: FlutterPluginRegistrar!
     
     private static let BASE_ID = "dev.jerrykhw.flutter_kakao_maps_sdk"
@@ -28,7 +28,7 @@ public class FlutterKakaoMapsSDKPlugin: NSObject, @preconcurrency FlutterPlugin 
     }
     
     private static func printLog(_ message: String) {
-        FlutterKakaoMapsSDKPlugin.logStreamHandler.sendMessage("KakaoMapsSDK \(message)")
+        FlutterKakaoMapsPlugin.logStreamHandler.sendMessage("KakaoMapsSDK \(message)")
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {

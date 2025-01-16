@@ -1,4 +1,4 @@
-package dev.jerrykhw.flutter_kakao_maps_sdk.enum
+package com.shareinvest.flutter_kakao_maps.enum
 
 import com.kakao.vectormap.MapGravity
 

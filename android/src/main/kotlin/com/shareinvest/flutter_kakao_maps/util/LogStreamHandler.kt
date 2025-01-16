@@ -1,4 +1,4 @@
-package dev.jerrykhw.flutter_kakao_maps_sdk.util
+package com.shareinvest.flutter_kakao_maps.util
 
 import io.flutter.plugin.common.EventChannel
 

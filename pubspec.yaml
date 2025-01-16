@@ -1,7 +1,8 @@
-name: flutter_kakao_maps_sdk
+name: flutter_kakao_maps
 description: KakaoMapsSDK for Flutter
-version: 0.4.0
-homepage: https://github.com/JerryKhw/flutter_kakao_maps_sdk
+homepage: https://github.com/share-tracker
+repository: https://github.com/share-tracker/flutter-kakao-maps
+version: 1.0.0
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
@@ -10,11 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   plugin_platform_interface: ^2.1.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
@@ -35,10 +38,11 @@ flutter:
   plugin:
     platforms:
       android:
-        package: dev.jerrykhw.flutter_kakao_maps_sdk
-        pluginClass: FlutterKakaoMapsSDKPlugin
+        package: com.shareinvest.flutter_kakao_maps
+        pluginClass: FlutterKakaoMapsPlugin
+
       ios:
-        pluginClass: FlutterKakaoMapsSDKPlugin
+        pluginClass: FlutterKakaoMapsPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

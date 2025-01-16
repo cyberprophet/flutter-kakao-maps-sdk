@@ -1,6 +1,6 @@
-part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
+part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
 
-const String _baseId = "dev.jerrykhw.flutter_kakao_maps_sdk";
+const String _baseId = "com.shareinvest.flutter_kakao_maps";
 
 const String _logEventChannelName = "$_baseId/log";
 

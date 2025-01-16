@@ -1,8 +1,8 @@
-package dev.jerrykhw.flutter_kakao_maps_sdk
+package com.shareinvest.flutter_kakao_maps
 
 import com.kakao.vectormap.KakaoMapSdk
-import dev.jerrykhw.flutter_kakao_maps_sdk.util.LogStreamHandler
-import dev.jerrykhw.flutter_kakao_maps_sdk.view.KakaoMapViewFactory
+import com.shareinvest.flutter_kakao_maps.util.LogStreamHandler
+import com.shareinvest.flutter_kakao_maps.view.KakaoMapViewFactory
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -12,7 +12,7 @@ import io.flutter.plugin.common.MethodChannel
 import org.json.JSONObject
 import java.io.InputStream
 
-class FlutterKakaoMapsSDKPlugin : FlutterPlugin, ActivityAware {
+class FlutterKakaoMapsPlugin : FlutterPlugin, ActivityAware {
     private fun printLog(message: String) {
         logStreamHandler.sendMessage("KakaoMapsSDK $message")
     }
@@ -70,7 +70,7 @@ class FlutterKakaoMapsSDKPlugin : FlutterPlugin, ActivityAware {
     override fun onDetachedFromActivity() = Unit
 
     companion object {
-        private const val BASE_ID = "dev.jerrykhw.flutter_kakao_maps_sdk"
+        private const val BASE_ID = "com.shareinvest.flutter_kakao_maps"
 
         private const val LOG_EVENT_CHANNEL_NAME = "${BASE_ID}/log"
 

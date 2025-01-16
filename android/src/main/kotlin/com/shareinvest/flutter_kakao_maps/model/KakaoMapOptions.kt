@@ -1,4 +1,4 @@
-package dev.jerrykhw.flutter_kakao_maps_sdk.model
+package com.shareinvest.flutter_kakao_maps.model
 
 import android.graphics.PointF
 import com.kakao.vectormap.LatLng
@@ -10,7 +10,7 @@ import com.kakao.vectormap.label.CompetitionType
 import com.kakao.vectormap.label.CompetitionUnit
 import com.kakao.vectormap.label.LabelLayerOptions
 import com.kakao.vectormap.label.OrderingType
-import dev.jerrykhw.flutter_kakao_maps_sdk.enum.KakaoMapAlignment
+import com.shareinvest.flutter_kakao_maps.enum.KakaoMapAlignment
 import org.json.JSONObject
 
 data class KakaoMapOptions(
@@ -72,6 +72,7 @@ fun JSONObject.toLatLng(): LatLng {
         this.getDouble("longitude")
     )
 }
+
 fun JSONObject.toPointF(): PointF {
     val arguments = this
 

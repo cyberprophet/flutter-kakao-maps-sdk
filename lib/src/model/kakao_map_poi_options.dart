@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
+part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
 
 /// Poi 설정
 class KakaoMapPoiOptions {

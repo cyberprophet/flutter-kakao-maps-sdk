@@ -1,6 +1,6 @@
-package dev.jerrykhw.flutter_kakao_maps_sdk.model
+package com.shareinvest.flutter_kakao_maps.model
 
-import dev.jerrykhw.flutter_kakao_maps_sdk.enum.KakaoMapAlignment
+import com.shareinvest.flutter_kakao_maps.enum.KakaoMapAlignment
 import org.json.JSONObject
 
 data class KakaoMapPosition(
