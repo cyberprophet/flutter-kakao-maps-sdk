@@ -3,20 +3,28 @@ part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
 class KakaoMapController {
   final int _id;
   final void Function(KakaoMapController controller)? _onMapReady;
+  final void Function(CameraPosition)? _onCameraMove;
 
   late final MethodChannel _viewMethodChannel;
 
-  KakaoMapController(this._id, this._onMapReady) {
+  KakaoMapController(this._id, this._onMapReady, this._onCameraMove) {
     _viewMethodChannel = MethodChannel(
-        _createViewMethodChannelName(_id), const JSONMethodCodec());
+      _createViewMethodChannelName(_id),
+      const JSONMethodCodec(),
+    );
 
     _viewMethodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
+        case 'cameraPosition' when _onCameraMove != null:
+          _onCameraMove!(CameraPosition.fromJson(call.arguments));
+          break;
+
         case "onMapReady":
           if (_onMapReady != null) {
             _onMapReady!(this);
           }
           break;
+
         default:
           break;
       }
@@ -185,6 +193,13 @@ class KakaoMapController {
       "tilt": tilt,
       "cameraAnimationOptions": cameraAnimationOptions.toMap(),
     });
+  }
+
+  Future<CameraPosition> getCameraPosition() async {
+    final cameraPosition = await _viewMethodChannel
+        .invokeMethod("getCameraPosition") as Map<String, dynamic>;
+
+    return CameraPosition.fromJson(cameraPosition);
   }
 
   /// ViewInfo 설정

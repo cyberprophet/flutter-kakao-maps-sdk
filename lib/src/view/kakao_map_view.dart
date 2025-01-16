@@ -6,11 +6,13 @@ class KakaoMapView extends StatefulWidget {
 
   /// 지도 생성 후 콜백
   final void Function(KakaoMapController controller)? onMapReady;
+  final void Function(CameraPosition)? onCameraMove;
 
   const KakaoMapView({
     super.key,
     this.options = const KakaoMapOptions(),
     this.onMapReady,
+    this.onCameraMove,
   });
 
   @override
@@ -26,7 +28,11 @@ class _KakaoMapViewState extends State<KakaoMapView> {
   }
 
   void _onPlatformViewCreated(int id) {
-    _controller = KakaoMapController(id, widget.onMapReady);
+    _controller = KakaoMapController(
+      id,
+      widget.onMapReady,
+      widget.onCameraMove,
+    );
   }
 
   @override

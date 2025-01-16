@@ -66,6 +66,8 @@ internal class KakaoMapView(
                 call.arguments as JSONObject, result
             )
 
+            "getCameraPosition" -> getCameraPosition(result)
+
             "setViewInfo" -> setViewInfo(call.arguments as JSONObject, result)
             "showOverlay" -> showOverlay(call.arguments as JSONObject, result)
             "hideOverlay" -> hideOverlay(call.arguments as JSONObject, result)
@@ -443,6 +445,29 @@ internal class KakaoMapView(
         result.success(null)
     }
 
+    private fun getCameraPosition(result: MethodChannel.Result) {
+        printLog("getCameraPosition")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        mapView.cameraPosition?.let { cameraPosition ->
+            result.success(
+                JSONObject().apply {
+                    put("height", cameraPosition.height)
+                    put("rotationAngle", cameraPosition.rotationAngle)
+                    put("tiltAngle", cameraPosition.tiltAngle)
+                    put("zoomLevel", cameraPosition.zoomLevel)
+                    put("position", JSONObject().apply {
+                        put("latitude", cameraPosition.position?.latitude)
+                        put("longitude", cameraPosition.position?.longitude)
+                    })
+                })
+        }
+    }
+
     private fun setViewInfo(arguments: JSONObject, result: MethodChannel.Result) {
         printLog("setViewInfo")
 
@@ -670,6 +695,7 @@ internal class KakaoMapView(
         mapViewContainer = MapView(activity)
 
         printLog("start")
+
         mapViewContainer.start(
             object : MapLifeCycleCallback() {
                 override fun onMapResumed() {
@@ -757,8 +783,22 @@ internal class KakaoMapView(
                             options.scaleBarOptions.fadeInOutOptions.retentionTime
                         )
                     }
-                    mapView.setCameraMaxLevel(21)
-                    mapView.setCameraMinLevel(7)
+                    mapView.setOnCameraMoveEndListener { _, cameraPosition, gestureType ->
+                        viewMethodChannel.invokeMethod("cameraPosition",
+                            JSONObject().apply {
+                                put("height", cameraPosition.height)
+                                put("rotationAngle", cameraPosition.rotationAngle)
+                                put("tiltAngle", cameraPosition.tiltAngle)
+                                put("zoomLevel", cameraPosition.zoomLevel)
+                                put("position", JSONObject().apply {
+                                    put("latitude", cameraPosition.position?.latitude)
+                                    put("longitude", cameraPosition.position?.longitude)
+                                })
+                                put("gestureType", gestureType)
+                            })
+                    }
+                    mapView.cameraMaxLevel = 21
+                    mapView.cameraMinLevel = 7
 
                     viewMethodChannel.invokeMethod("onMapReady", null)
                 }
@@ -784,6 +824,7 @@ internal class KakaoMapView(
                 }
             },
         )
+
     }
 
     override fun getView(): View {
