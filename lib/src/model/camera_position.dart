@@ -36,3 +36,12 @@ class CameraPosition {
     );
   }
 }
+
+extension StatusExtension on String {
+  KakaoMapGestureType toStatus() {
+    return KakaoMapGestureType.values.firstWhere(
+      (e) => e.name.toLowerCase() == toLowerCase(),
+      orElse: () => KakaoMapGestureType.unknown,
+    );
+  }
+}
