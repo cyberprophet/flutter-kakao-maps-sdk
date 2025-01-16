@@ -700,10 +700,13 @@ internal class KakaoMapView(
                     if (options.overlay != null) {
                         mapView.showOverlay(options.overlay!!)
                     }
+
                     // Language
                     mapView.setPoiLanguage(options.language)
+
                     // BuildingScale
                     mapView.buildingHeightScale = options.buildingScale
+
                     // Padding
                     mapView.setPadding(
                         options.padding.left.px,
@@ -721,6 +724,7 @@ internal class KakaoMapView(
                     mapView.setPoiClickable(options.poiOptions.clickable)
                     mapView.setPoiVisible(options.poiOptions.enabled)
                     mapView.setPoiScale(options.poiOptions.scale)
+
                     // CompassOptions
                     mapView.compass?.let { compass ->
                         if (options.compassOptions.enabled) {
@@ -753,6 +757,8 @@ internal class KakaoMapView(
                             options.scaleBarOptions.fadeInOutOptions.retentionTime
                         )
                     }
+                    mapView.setCameraMaxLevel(21)
+                    mapView.setCameraMinLevel(7)
 
                     viewMethodChannel.invokeMethod("onMapReady", null)
                 }
