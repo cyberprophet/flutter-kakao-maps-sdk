@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
+import 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {

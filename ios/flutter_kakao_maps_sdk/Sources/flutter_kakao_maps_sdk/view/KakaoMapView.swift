@@ -15,7 +15,7 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
     private var auth: Bool
     
     private func printLog(_ message: String) {
-        FlutterKakaoMapsSDKPlugin.logStreamHandler.sendMessage("KakaoMapView#\(viewId)[\(options.viewName)] \(message)")
+        FlutterKakaoMapsPlugin.logStreamHandler.sendMessage("KakaoMapView#\(viewId)[\(options.viewName)] \(message)")
     }
     
     private func viewMethodCallHandler(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -125,7 +125,7 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
                 let badgeID = style["badgeID"] as! String
                 
                 let imageNamed = badge["image"] as! String
-                let imagePath = FlutterKakaoMapsSDKPlugin.getAssetPath(named: imageNamed)
+                let imagePath = FlutterKakaoMapsPlugin.getAssetPath(named: imageNamed)
                 
                 let height = badge["height"] as! Double
                 let width = badge["width"] as! Double
@@ -139,7 +139,7 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
             }
             
             let symbolNamed = style["symbol"] as! String
-            let symbolPath = FlutterKakaoMapsSDKPlugin.getAssetPath(named: symbolNamed)
+            let symbolPath = FlutterKakaoMapsPlugin.getAssetPath(named: symbolNamed)
             
             let height = style["height"] as! Double
             let width = style["width"] as! Double

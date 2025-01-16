@@ -1,9 +1,9 @@
-package dev.jerrykhw.flutter_kakao_maps_sdk.view
+package com.shareinvest.flutter_kakao_maps.view
 
 import android.app.Activity
 import android.content.Context
-import dev.jerrykhw.flutter_kakao_maps_sdk.FlutterKakaoMapsSDKPlugin
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toKakaoMapOptions
+import com.shareinvest.flutter_kakao_maps.FlutterKakaoMapsPlugin
+import com.shareinvest.flutter_kakao_maps.model.toKakaoMapOptions
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.JSONMessageCodec
 import io.flutter.plugin.common.JSONMethodCodec
@@ -24,7 +24,7 @@ class KakaoMapViewFactory(
         val viewMethodChannel =
             MethodChannel(
                 messenger,
-                FlutterKakaoMapsSDKPlugin.createViewMethodChannelName(viewId),
+                FlutterKakaoMapsPlugin.createViewMethodChannelName(viewId),
                 JSONMethodCodec.INSTANCE
             )
 

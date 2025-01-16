@@ -19,7 +19,7 @@ class KakaoMapViewFactory: NSObject, @preconcurrency FlutterPlatformViewFactory 
         
         let options = arguments.toKakaoMapOptions()
         
-        let viewMethodChannel = FlutterMethodChannel(name: FlutterKakaoMapsSDKPlugin.createViewMethodChannelName(id: viewId), binaryMessenger: messenger, codec: FlutterJSONMethodCodec.sharedInstance())
+        let viewMethodChannel = FlutterMethodChannel(name: FlutterKakaoMapsPlugin.createViewMethodChannelName(id: viewId), binaryMessenger: messenger, codec: FlutterJSONMethodCodec.sharedInstance())
         
         return KakaoMapView(
             frame: frame,

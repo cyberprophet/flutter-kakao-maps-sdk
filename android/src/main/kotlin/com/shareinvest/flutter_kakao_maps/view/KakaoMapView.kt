@@ -1,4 +1,4 @@
-package dev.jerrykhw.flutter_kakao_maps_sdk.view
+package com.shareinvest.flutter_kakao_maps.view
 
 import android.app.Activity
 import android.graphics.Bitmap
@@ -20,20 +20,20 @@ import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import com.kakao.vectormap.label.LabelTransition
 import com.kakao.vectormap.label.Transition
-import dev.jerrykhw.flutter_kakao_maps_sdk.FlutterKakaoMapsSDKPlugin
-import dev.jerrykhw.flutter_kakao_maps_sdk.enum.toMapGravity
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.KakaoMapOptions
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toCameraAnimation
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toCompassOptions
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toKakaoMapPosition
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toLabelLayerOptions
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toLatLng
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toPadding
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toPoiOptions
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toPointF
-import dev.jerrykhw.flutter_kakao_maps_sdk.model.toScaleBarOptions
-import dev.jerrykhw.flutter_kakao_maps_sdk.util.dp
-import dev.jerrykhw.flutter_kakao_maps_sdk.util.px
+import com.shareinvest.flutter_kakao_maps.FlutterKakaoMapsPlugin
+import com.shareinvest.flutter_kakao_maps.enum.toMapGravity
+import com.shareinvest.flutter_kakao_maps.model.KakaoMapOptions
+import com.shareinvest.flutter_kakao_maps.model.toCameraAnimation
+import com.shareinvest.flutter_kakao_maps.model.toCompassOptions
+import com.shareinvest.flutter_kakao_maps.model.toKakaoMapPosition
+import com.shareinvest.flutter_kakao_maps.model.toLabelLayerOptions
+import com.shareinvest.flutter_kakao_maps.model.toLatLng
+import com.shareinvest.flutter_kakao_maps.model.toPadding
+import com.shareinvest.flutter_kakao_maps.model.toPoiOptions
+import com.shareinvest.flutter_kakao_maps.model.toPointF
+import com.shareinvest.flutter_kakao_maps.model.toScaleBarOptions
+import com.shareinvest.flutter_kakao_maps.util.dp
+import com.shareinvest.flutter_kakao_maps.util.px
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import org.json.JSONObject
@@ -48,7 +48,7 @@ internal class KakaoMapView(
     private var mapView: KakaoMap? = null
 
     private fun printLog(message: String) {
-        FlutterKakaoMapsSDKPlugin.logStreamHandler.sendMessage("KakaoMapView#${viewId}[${options.viewName}] $message")
+        FlutterKakaoMapsPlugin.logStreamHandler.sendMessage("KakaoMapView#${viewId}[${options.viewName}] $message")
     }
 
     private val viewMethodCallHandler = MethodChannel.MethodCallHandler { call, result ->
@@ -170,7 +170,8 @@ internal class KakaoMapView(
             for (badgeIndex in 0 until badgesJsonArray.length()) {
                 val badgeJsonObject = badgesJsonArray.getJSONObject(badgeIndex)
 
-                val inputStream = FlutterKakaoMapsSDKPlugin.getAsset(badgeJsonObject.getString("image"))
+                val inputStream =
+                    FlutterKakaoMapsPlugin.getAsset(badgeJsonObject.getString("image"))
                 val bitmap = Bitmap.createScaledBitmap(
                     BitmapFactory.decodeStream(inputStream),
                     badgeJsonObject.getDouble("height").px.toInt(),
@@ -191,7 +192,7 @@ internal class KakaoMapView(
                 badges.add(badge)
             }
 
-            val inputStream = FlutterKakaoMapsSDKPlugin.getAsset(style.getString("symbol"))
+            val inputStream = FlutterKakaoMapsPlugin.getAsset(style.getString("symbol"))
             val bitmap = Bitmap.createScaledBitmap(
                 BitmapFactory.decodeStream(inputStream),
                 style.getDouble("height").px.toInt(),

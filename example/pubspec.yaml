@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_kakao_maps_sdk:
+  flutter_kakao_maps:
     # When depending on this package from a real application you should use:
     #   flutter_kakao_maps_sdk: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints
@@ -34,6 +34,7 @@ dependencies:
 dev_dependencies:
   integration_test:
     sdk: flutter
+
   flutter_test:
     sdk: flutter
 

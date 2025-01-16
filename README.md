@@ -1,4 +1,4 @@
-# flutter_kakao_maps_sdk
+# flutter_kakao_maps
 
 KakaoMapsSDK for Flutter
 
@@ -14,7 +14,7 @@ KakaoMapsSDK for Flutter
 ## Installation
 
 ```
-$ flutter pub add flutter_kakao_maps_sdk
+$ flutter pub add flutter_kakao_maps
 ```
 
 ## Configuration
