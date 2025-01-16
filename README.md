@@ -3,7 +3,7 @@
 KakaoMapsSDK for Flutter
 
 [![Android](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/android.yml/badge.svg?branch=dev&event=push)](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/android.yml)
-
+[![iOS](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/iOS.yml/badge.svg?branch=dev&event=push)](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/iOS.yml)
 ## Requirements
 
 - Dart sdk: ">=3.1.0 <4.0.0"
@@ -60,5 +60,5 @@ $ flutter pub add flutter_kakao_maps
    카카오 개발자 사이트를 통해 앱 등록을 하면 네이티브 앱 키(App Key) 가 발급됩니다. 발급받은 네이티브 앱 키를 main.dart 위치에 아래와 같이 앱키를 추가해서 KakaoMapsSDK.initialize 을 호출합니다. 앱 키 관련 자세한 안내는 [앱 키](https://developers.kakao.com/docs/latest/ko/getting-started/app#app-key) 를 참고합니다. (위치는 권장)
 
    ```dart
-   KakaoMapsSDK.initialize("your_app_key");
+   KakaoMapsSDK.instance.init(appKey: 'your_app_key', debug: kDebugMode);
    ```
