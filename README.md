@@ -2,8 +2,6 @@
 
 KakaoMapsSDK for Flutter
 
-[![Android](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/android.yml/badge.svg?branch=dev&event=push)](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/android.yml)
-[![iOS](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/iOS.yml/badge.svg?branch=dev&event=push)](https://github.com/share-tracker/flutter-kakao-maps/actions/workflows/iOS.yml)
 ## Requirements
 
 - Dart sdk: ">=3.1.0 <4.0.0"
