@@ -3,6 +3,7 @@ package com.shareinvest.flutter_kakao_maps.view
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.view.View
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
@@ -12,6 +13,7 @@ import com.kakao.vectormap.MapOverlay
 import com.kakao.vectormap.MapType
 import com.kakao.vectormap.MapView
 import com.kakao.vectormap.MapViewInfo
+import com.kakao.vectormap.animation.Interpolation
 import com.kakao.vectormap.camera.CameraPosition
 import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.BadgeOptions
@@ -20,6 +22,14 @@ import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
 import com.kakao.vectormap.label.LabelTransition
 import com.kakao.vectormap.label.Transition
+import com.kakao.vectormap.route.RouteLineOptions
+import com.kakao.vectormap.route.RouteLineSegment
+import com.kakao.vectormap.route.RouteLineStyle
+import com.kakao.vectormap.route.RouteLineStyles
+import com.kakao.vectormap.route.RouteLineStylesSet
+import com.kakao.vectormap.route.animation.ProgressAnimation
+import com.kakao.vectormap.route.animation.ProgressDirection
+import com.kakao.vectormap.route.animation.ProgressType
 import com.shareinvest.flutter_kakao_maps.FlutterKakaoMapsPlugin
 import com.shareinvest.flutter_kakao_maps.enum.toMapGravity
 import com.shareinvest.flutter_kakao_maps.model.KakaoMapOptions
@@ -31,6 +41,7 @@ import com.shareinvest.flutter_kakao_maps.model.toLatLng
 import com.shareinvest.flutter_kakao_maps.model.toPadding
 import com.shareinvest.flutter_kakao_maps.model.toPoiOptions
 import com.shareinvest.flutter_kakao_maps.model.toPointF
+import com.shareinvest.flutter_kakao_maps.model.toRouteLineOptions
 import com.shareinvest.flutter_kakao_maps.model.toScaleBarOptions
 import com.shareinvest.flutter_kakao_maps.util.dp
 import com.shareinvest.flutter_kakao_maps.util.px
@@ -55,13 +66,22 @@ internal class KakaoMapView(
         when (call.method) {
             "dispose" -> dispose(result)
 
+            "addRouteLine" -> addRouteLine(call.arguments as JSONObject, result)
+            "moveRouteLine" -> moveRouteLine(call.arguments as JSONObject, result)
+
+            "addLodLabel" -> addLodLabel(call.arguments as JSONObject, result)
+
             "addPoi" -> addPoi(call.arguments as JSONObject, result)
+            "movePoi" -> movePoi(call.arguments as JSONObject, result)
             "removePoi" -> removePoi(call.arguments as JSONObject, result)
+
+            "addRouteLineStyle" -> addRouteLineStyle(call.arguments as JSONObject, result)
 
             "addPoiIconStyle" -> addPoiIconStyle(call.arguments as JSONObject, result)
             "changePoiIconStyle" -> changePoiIconStyle(call.arguments as JSONObject, result)
 
             "addLabelLayer" -> addLabelLayer(call.arguments as JSONObject, result)
+            "addLodLabelLayer" -> addLodLabelLayer(call.arguments as JSONObject, result)
 
             "moveCamera" -> moveCamera(call.arguments as JSONObject, result)
             "animateCamera" -> animateCamera(call.arguments as JSONObject, result)
@@ -70,8 +90,6 @@ internal class KakaoMapView(
             "animateCameraTransform" -> animateCameraTransform(
                 call.arguments as JSONObject, result
             )
-
-            "addRouteLine"-> addRouteLine(call.arguments as JSONObject, result)
 
             "getCameraPosition" -> getCameraPosition(result)
 
@@ -108,6 +126,116 @@ internal class KakaoMapView(
         result.success(null)
     }
 
+    private fun addRouteLine(arguments: JSONObject, result: MethodChannel.Result) {
+        printLog("addRouteLine")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val routeLineManager = mapView.routeLineManager ?: run {
+            result.error("NOT_FOUND_ROUTE_LINE_MANAGER", "routeLineManager is null", null)
+            return
+        }
+
+        val routeLineStyles = arguments.getJSONArray("lineStyles").let { styles ->
+            List(styles.length()) { index ->
+                styles.getJSONObject(index).toRouteLineOptions()
+            }
+        }
+
+        val stylesSet = routeLineManager.addStylesSet(
+            RouteLineStylesSet.from(
+                RouteLineStyles.from(routeLineStyles)
+            )
+        )
+
+        val segment = RouteLineSegment.from(
+            arguments.getJSONArray("points").let { points ->
+                List(points.length()) { index ->
+                    points.getJSONObject(index).toLatLng()
+                }
+            }).setStyles(stylesSet.getStyles(0))
+
+        val layer = routeLineManager.layer.addRouteLine(
+            RouteLineOptions.from(segment).setStylesSet(stylesSet)
+        )
+
+        val animation = ProgressAnimation.from(layer.lineId, 0x400).apply {
+            interpolation = Interpolation.Linear
+            progressType = ProgressType.ToShow
+            progressDirection = ProgressDirection.StartFirst
+            isHideAtStop = false
+            isResetToInitialState = false
+        }
+
+        val animator = routeLineManager.addAnimator(animation)
+
+        animator.addRouteLines(layer)
+        animator.start { result.success(layer.lineId) }
+    }
+
+    private fun moveRouteLine(arguments: JSONObject, result: MethodChannel.Result) {
+        printLog("moveRouteLine")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val routeLineManager = mapView.routeLineManager ?: run {
+            result.error("NOT_FOUND_ROUTE_LINE_MANAGER", "routeLineManager is null", null)
+            return
+        }
+
+        val routeLine = routeLineManager.layer.getRouteLine(arguments.getString("lineId"))
+
+        routeLine.changeSegments(
+            routeLine.segments.first().addPoints(arguments.getJSONObject("point").toLatLng())
+        )
+    }
+
+    private fun addLodLabel(arguments: JSONObject, result: MethodChannel.Result) {
+        Log.d("addLodLabel", "$arguments")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val labelManager = mapView.labelManager ?: run {
+            result.error("NOT_FOUND_LABEL_MANAGER", "labelManager is null", null)
+            return
+        }
+
+        val lodLabelLayer = labelManager.lodLayer
+
+        val labelStyles = labelManager.getLabelStyles(arguments.getString("styleID")) ?: run {
+            result.error("NOT_FOUND_LABEL_STYLES", "labelStyles is null", null)
+            return
+        }
+        Log.d("lodLabelLayer", "$lodLabelLayer")
+
+        val labelOptions = arguments.getJSONArray("positions").let { positions ->
+            List(positions.length()) { index ->
+                LabelOptions.from(
+                    positions.getJSONObject(index).toLatLng()
+                ).apply {
+                    styles = labelStyles
+                }
+            }
+        }
+        Log.d("labelOptions", "$labelOptions")
+
+        val labels = lodLabelLayer?.addLodLabels(labelOptions) ?: run {
+            result.error("FAILED_ADD", "failed add poi", null)
+            return
+        }
+
+        result.success(labels.map { it.labelId })
+    }
+
     private fun addPoi(arguments: JSONObject, result: MethodChannel.Result) {
         printLog("addPoi")
 
@@ -140,6 +268,28 @@ internal class KakaoMapView(
         result.success(poi.labelId)
     }
 
+    private fun movePoi(arguments: JSONObject, result: MethodChannel.Result) {
+        printLog("movePoi")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val labelManager = mapView.labelManager ?: run {
+            result.error("NOT_FOUND_LABEL_MANAGER", "labelManager is null", null)
+            return
+        }
+
+        val labelLayer = labelManager.getLayer(arguments.getString("layerID"))
+
+        val poi = labelLayer.getLabel(arguments.getString("poiID"))
+
+        poi.moveTo(arguments.getJSONObject("at").toLatLng(), arguments.getInt("milliseconds"))
+
+        result.success(poi.labelId)
+    }
+
     private fun removePoi(arguments: JSONObject, result: MethodChannel.Result) {
         printLog("removePoi")
 
@@ -158,6 +308,35 @@ internal class KakaoMapView(
         labelLayer.remove(labelLayer.getLabel(arguments.getString("poiID")))
 
         result.success(null)
+    }
+
+    private fun addRouteLineStyle(arguments: JSONObject, result: MethodChannel.Result) {
+        printLog("addRouteLineStyle")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val routeLineManager = mapView.routeLineManager ?: run {
+            result.error("NOT_FOUND_ROUTE_LINE_MANAGER", "routeLineManager is null", null)
+            return
+        }
+
+        val routeLineStyles = arguments.getJSONArray("lineStyles").let { styles ->
+            List(styles.length()) { index ->
+                styles.getJSONObject(index).toRouteLineOptions()
+            }
+        }
+
+        val stylesSet = routeLineManager.addStylesSet(
+            RouteLineStylesSet.from(
+                arguments.getString("styleId"),
+                RouteLineStyles.from(routeLineStyles)
+            )
+        )
+
+        result.success(stylesSet.styleId)
     }
 
     private fun addPoiIconStyle(arguments: JSONObject, result: MethodChannel.Result) {
@@ -279,6 +458,29 @@ internal class KakaoMapView(
         }
 
         labelManager.addLayer(
+            arguments.toLabelLayerOptions()
+        ) ?: run {
+            result.error("FAILED_ADD", "failed add labelLayer", null)
+            return
+        }
+
+        result.success(null)
+    }
+
+    private fun addLodLabelLayer(arguments: JSONObject, result: MethodChannel.Result) {
+        printLog("addLodLabelLayer")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val labelManager = mapView.labelManager ?: run {
+            result.error("NOT_FOUND_LABEL_MANAGER", "labelManager is null", null)
+            return
+        }
+
+        labelManager.addLodLayer(
             arguments.toLabelLayerOptions()
         ) ?: run {
             result.error("FAILED_ADD", "failed add labelLayer", null)
@@ -458,16 +660,6 @@ internal class KakaoMapView(
         mapView.moveCamera(cameraUpdate, cameraAnimationOptions)
 
         result.success(null)
-    }
-
-    private fun addRouteLine(arguments: JSONObject, result: MethodChannel.Result){
-        printLog("addRouteLine")
-
-        val mapView = mapView ?: run {
-            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
-            return
-        }
-        val layer = mapView.getRouteLineManager().getLayer()
     }
 
     private fun getCameraPosition(result: MethodChannel.Result) {

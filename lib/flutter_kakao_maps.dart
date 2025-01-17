@@ -33,6 +33,8 @@ part 'src/model/kakao_map_poi_options.dart';
 part 'src/model/kakao_map_point.dart';
 part 'src/model/kakao_map_position.dart';
 part 'src/model/kakao_map_route_line.dart';
+part 'src/model/kakao_map_route_line_pattern.dart';
+part 'src/model/kakao_map_route_line_style.dart';
 part 'src/model/scale_bar_options.dart';
 part 'src/util/channel.dart';
 part 'src/view/kakao_map_view.dart';

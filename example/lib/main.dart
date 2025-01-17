@@ -933,13 +933,22 @@ class _MapMoveViewState extends State<MapMoveView> {
       ),
       body: KakaoMapView(
         options: const KakaoMapOptions(
-          buildingScale: 1,
+          overlay: KakaoMapOverlay.hillShading,
+          scaleBarOptions: ScaleBarOptions(
+            position: KakaoMapPosition(
+              alignment: KakaoMapAlignment.bottomRight,
+              x: 4,
+              y: 4,
+            ),
+            autoDisabled: false,
+          ),
+          logoPosition: KakaoMapPosition(
+            alignment: KakaoMapAlignment.bottomLeft,
+            x: 4,
+            y: 4,
+          ),
         ),
-        onCameraMove: (cp) {
-          if (kDebugMode) {
-            print(cp);
-          }
-        },
+        onCameraMove: (cp) {},
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );
@@ -1044,6 +1053,7 @@ class MapLayerView extends StatefulWidget {
 class _MapLayerViewState extends State<MapLayerView> {
   late final KakaoMapController kakaoMapController;
   late final KakaoMapLabelLayer labelLayer;
+  late final KakaoMapLabelLayer lodLabelLayer;
   late final KakaoMapPoi poi;
 
   @override
@@ -1076,6 +1086,36 @@ class _MapLayerViewState extends State<MapLayerView> {
                     if (context.mounted) Navigator.pop(context);
                   },
                   child: const Text("STYLE2"),
+                ),
+                CupertinoActionSheetAction(
+                  onPressed: () async {
+                    const point = KakaoMapPoint(
+                      longitude: 127.708678,
+                      latitude: 37.102001,
+                    );
+                    await poi.movePoi(
+                      at: point,
+                      poiId: poi.id,
+                    );
+                    final routeLine = await labelLayer.addRouteLine(
+                      [const KakaoMapRouteLineStyle()],
+                      [
+                        const KakaoMapPoint(
+                          longitude: 127.108678,
+                          latitude: 37.402001,
+                        ),
+                        point
+                      ],
+                    );
+
+                    if (context.mounted) Navigator.pop(context);
+
+                    await routeLine.moveRouteLine(const KakaoMapPoint(
+                      longitude: 127.709778,
+                      latitude: 37.303101,
+                    ));
+                  },
+                  child: const Text("Move"),
                 ),
               ],
             ),
@@ -1124,6 +1164,34 @@ class _MapLayerViewState extends State<MapLayerView> {
             ),
           );
 
+          if (kDebugMode) {
+            print(await labelLayer.addLodLabel(
+              styleId: 'style2',
+              positions: [
+                const KakaoMapPoint(longitude: 127.108178, latitude: 37.405001),
+                const KakaoMapPoint(longitude: 127.108278, latitude: 37.404001),
+                const KakaoMapPoint(longitude: 127.108378, latitude: 37.403001),
+                const KakaoMapPoint(longitude: 127.108478, latitude: 37.402091),
+                const KakaoMapPoint(longitude: 127.108578, latitude: 37.402081),
+                const KakaoMapPoint(longitude: 127.108678, latitude: 37.402071),
+                const KakaoMapPoint(longitude: 127.108778, latitude: 37.402061),
+                const KakaoMapPoint(longitude: 127.108878, latitude: 37.402051),
+                const KakaoMapPoint(longitude: 127.108978, latitude: 37.402041),
+                const KakaoMapPoint(longitude: 127.108618, latitude: 37.402031),
+                const KakaoMapPoint(longitude: 127.108628, latitude: 37.402021),
+                const KakaoMapPoint(longitude: 127.108638, latitude: 37.402011),
+                const KakaoMapPoint(longitude: 127.108648, latitude: 37.402901),
+                const KakaoMapPoint(longitude: 127.108658, latitude: 37.402801),
+                const KakaoMapPoint(longitude: 127.108668, latitude: 37.402701),
+                const KakaoMapPoint(longitude: 127.108678, latitude: 37.402601),
+                const KakaoMapPoint(longitude: 127.108688, latitude: 37.402501),
+                const KakaoMapPoint(longitude: 127.108698, latitude: 37.402401),
+                const KakaoMapPoint(longitude: 127.108679, latitude: 37.402301),
+                const KakaoMapPoint(longitude: 127.108671, latitude: 37.402201),
+                const KakaoMapPoint(longitude: 127.108672, latitude: 37.402101),
+              ],
+            ));
+          }
           kakaoMapController = controller;
         },
       ),

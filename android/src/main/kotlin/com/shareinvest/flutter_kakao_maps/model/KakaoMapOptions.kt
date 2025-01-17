@@ -10,7 +10,9 @@ import com.kakao.vectormap.label.CompetitionType
 import com.kakao.vectormap.label.CompetitionUnit
 import com.kakao.vectormap.label.LabelLayerOptions
 import com.kakao.vectormap.label.OrderingType
+import com.kakao.vectormap.route.RouteLineStyle
 import com.shareinvest.flutter_kakao_maps.enum.KakaoMapAlignment
+import com.shareinvest.flutter_kakao_maps.util.px
 import org.json.JSONObject
 
 data class KakaoMapOptions(
@@ -62,7 +64,7 @@ fun JSONObject.toKakaoMapOptions(): KakaoMapOptions {
         this.getJSONObject("logoPosition").toKakaoMapPosition(),
         this.getJSONObject("poiOptions").toPoiOptions(),
         this.getJSONObject("compassOptions").toCompassOptions(),
-        this.getJSONObject("scaleBarOptions").toScaleBarOptions(),
+        this.getJSONObject("scaleBarOptions").toScaleBarOptions()
     )
 }
 
@@ -95,6 +97,15 @@ fun JSONObject.toCameraAnimation(): CameraAnimation {
         this.getInt("durationInMillis"),
         this.getBoolean("autoElevation"),
         this.getBoolean("consecutive"),
+    )
+}
+
+fun JSONObject.toRouteLineOptions(): RouteLineStyle {
+    val arguments = this
+
+    return RouteLineStyle.from(
+        arguments.getDouble("lineWidth").px.toFloat(),
+        arguments.getInt("lineColor")
     )
 }
 

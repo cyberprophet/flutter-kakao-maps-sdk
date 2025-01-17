@@ -13,10 +13,7 @@ class KakaoMapsSDK {
 
   StreamSubscription<dynamic>? _stream;
 
-  Future<void> init({
-    required String appKey,
-    bool debug = false,
-  }) async {
+  Future<void> init({required String appKey, bool debug = false}) async {
     _debug = debug;
 
     _stream ??= _logEventChannel.receiveBroadcastStream().listen(
