@@ -43,6 +43,8 @@ class KakaoMapOptions {
   /// 축척 설정
   final ScaleBarOptions scaleBarOptions;
 
+  final KakaoMapRouteLine routeLines;
+
   const KakaoMapOptions({
     this.appName = "openmap",
     this.viewName = "mapview",
@@ -59,8 +61,8 @@ class KakaoMapOptions {
     this.buildingScale = 1.0,
     this.logoPosition = const KakaoMapPosition(
       alignment: KakaoMapAlignment.bottomRight,
-      x: 0,
-      y: 0,
+      x: 4,
+      y: 4,
     ),
     this.poiOptions = const KakaoMapPoiOptions(),
     this.compassOptions = const CompassOptions(
@@ -79,6 +81,7 @@ class KakaoMapOptions {
         y: 0,
       ),
     ),
+    this.routeLines = const KakaoMapRouteLine(),
   });
 
   KakaoMapOptions copyWith({

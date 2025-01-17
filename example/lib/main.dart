@@ -933,13 +933,23 @@ class _MapMoveViewState extends State<MapMoveView> {
       ),
       body: KakaoMapView(
         options: const KakaoMapOptions(
-          buildingScale: 1,
+          overlay: KakaoMapOverlay.hillShading,
+          scaleBarOptions: ScaleBarOptions(
+            position: KakaoMapPosition(
+              alignment: KakaoMapAlignment.bottomRight,
+              x: 4,
+              y: 4,
+            ),
+            autoDisabled: false,
+          ),
+          logoPosition: KakaoMapPosition(
+            alignment: KakaoMapAlignment.bottomLeft,
+            x: 4,
+            y: 4,
+          ),
+          routeLines: KakaoMapRouteLine(routeLines: {}),
         ),
-        onCameraMove: (cp) {
-          if (kDebugMode) {
-            print(cp);
-          }
-        },
+        onCameraMove: (cp) {},
         onMapReady: (controller) => kakaoMapController = controller,
       ),
     );

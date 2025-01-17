@@ -71,7 +71,7 @@ internal class KakaoMapView(
                 call.arguments as JSONObject, result
             )
 
-            "addRouteLine"-> addRouteLine(call.arguments as JSONObject, result)
+            "addRouteLine" -> addRouteLine(call.arguments as JSONObject, result)
 
             "getCameraPosition" -> getCameraPosition(result)
 
@@ -460,14 +460,13 @@ internal class KakaoMapView(
         result.success(null)
     }
 
-    private fun addRouteLine(arguments: JSONObject, result: MethodChannel.Result){
+    private fun addRouteLine(arguments: JSONObject, result: MethodChannel.Result) {
         printLog("addRouteLine")
 
         val mapView = mapView ?: run {
             result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
             return
         }
-        val layer = mapView.getRouteLineManager().getLayer()
     }
 
     private fun getCameraPosition(result: MethodChannel.Result) {
