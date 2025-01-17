@@ -1,18 +1,20 @@
 part of '../../flutter_kakao_maps.dart';
 
 class KakaoMapRouteLine {
-  final Set<KakaoMapRouteLineStyle>? lineStyles;
-  final Set<KakaoMapPoint>? routeLines;
+  final String id;
+  final String layerId;
+  final MethodChannel _viewMethodChannel;
 
-  const KakaoMapRouteLine({
-    this.lineStyles = const {KakaoMapRouteLineStyle()},
-    this.routeLines = const {},
-  });
+  const KakaoMapRouteLine(this.layerId, this.id, this._viewMethodChannel);
+
+  Future moveRouteLine(KakaoMapPoint point) async {
+    await _viewMethodChannel.invokeMethod('moveRouteLine', {
+      'point': point.toMap(),
+      'lineId': id,
+    });
+  }
 }
 
 extension KakaoMapRouteLineExtension on KakaoMapRouteLine {
-  Map<String, dynamic> toMap() => {
-        'lineStyles': lineStyles?.map((e) => e.toMap()).toList(),
-        'points': routeLines?.map((e) => e.toMap()).toList()
-      };
+  Map<String, dynamic> toMap() => {};
 }

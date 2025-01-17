@@ -1,3 +1,3 @@
 ## 1.0.0
 
-- initialize kakao map
+- KakaoMap configuration reflected in real time.

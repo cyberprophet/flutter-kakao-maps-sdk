@@ -11,7 +11,7 @@ class KakaoMapRouteLineStyle {
   const KakaoMapRouteLineStyle({
     this.lineColor = const Color(0xFF67A4FF),
     this.linePattern,
-    this.lineWidth = 4,
+    this.lineWidth = 2,
     this.strokeColor = const Color(0xFF67A4FF),
     this.strokeWidth = 0,
     this.zoomLevel,

@@ -22,13 +22,16 @@ class KakaoMapPoiIconStyle {
   /// 지도에 나타나기 시작하는 zoomLevel 값.
   final int level;
 
+  final String? styleId;
+
   const KakaoMapPoiIconStyle({
+    this.styleId,
     required this.symbol,
     required this.height,
     required this.width,
-    required this.anchorPoint,
+    this.anchorPoint = const KakaoMapPoint(longitude: 0.5, latitude: 1),
     this.badges,
-    this.transitionType = KakaoMapTransitionType.none,
+    this.transitionType = KakaoMapTransitionType.scale,
     this.level = 0,
   });
 
@@ -40,8 +43,10 @@ class KakaoMapPoiIconStyle {
     List<KakaoMapBadge>? badges,
     KakaoMapTransitionType? transitionType,
     int? level,
+    String? styleId,
   }) =>
       KakaoMapPoiIconStyle(
+        styleId: styleId ?? this.styleId,
         symbol: symbol ?? this.symbol,
         height: height ?? this.height,
         width: width ?? this.width,
@@ -62,6 +67,7 @@ extension KakaoMapPoiIconStyleExtension on KakaoMapPoiIconStyle {
       "badges": badges?.map((e) => e.toMap()).toList() ?? [],
       "transitionType": transitionType.toInt(),
       "level": level,
+      'styleId': styleId
     };
   }
 }

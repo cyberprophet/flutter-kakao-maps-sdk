@@ -88,6 +88,7 @@ class FlutterKakaoMapsPlugin : FlutterPlugin, ActivityAware {
 
         internal fun getAsset(named: String): InputStream {
             val path = flutterAssets.getAssetFilePathByName(named)
+            
             return pluginBinding.applicationContext.assets.open(path)
         }
     }

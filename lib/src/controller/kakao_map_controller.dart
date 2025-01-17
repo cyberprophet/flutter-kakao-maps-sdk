@@ -72,7 +72,34 @@ class KakaoMapController {
       },
     );
 
-    return KakaoMapLabelLayer(layerID, _viewMethodChannel);
+    return KakaoMapLabelLayer(
+      layerId: layerID,
+      viewMethodChannel: _viewMethodChannel,
+    );
+  }
+
+  Future<KakaoMapLabelLayer> addLodLabelLayer({
+    required String layerID,
+    KakaoMapCompetitionType competitionType = KakaoMapCompetitionType.none,
+    KakaoMapCompetitionUnit competitionUnit = KakaoMapCompetitionUnit.poi,
+    KakaoMapOrderType orderType = KakaoMapOrderType.rank,
+    int zOrder = 0,
+  }) async {
+    await _viewMethodChannel.invokeMethod(
+      "addLodLabelLayer",
+      {
+        "layerID": layerID,
+        "competitionType": competitionType.toInt(),
+        "competitionUnit": competitionUnit.toInt(),
+        "orderType": orderType.toInt(),
+        "zOrder": zOrder,
+      },
+    );
+
+    return KakaoMapLabelLayer(
+      layerId: layerID,
+      viewMethodChannel: _viewMethodChannel,
+    );
   }
 
   /// 카메라 이동
