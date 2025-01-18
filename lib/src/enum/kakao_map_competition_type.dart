@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
+part of '../../flutter_kakao_maps.dart';
 
 /// Poi의 경쟁 타입
 enum KakaoMapCompetitionType {

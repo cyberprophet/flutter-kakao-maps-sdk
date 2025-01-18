@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
+part of '../../flutter_kakao_maps.dart';
 
 /// 애니메이션 타입
 enum KakaoMapTransitionType {

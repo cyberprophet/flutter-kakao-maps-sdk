@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
+part of '../../flutter_kakao_maps.dart';
 
 /// 우선순위가 같은 라벨끼리 경쟁하는 경우, 경쟁을 처리하는 방법
 enum KakaoMapOrderType {

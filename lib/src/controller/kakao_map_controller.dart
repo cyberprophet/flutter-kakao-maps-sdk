@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
+part of '../../flutter_kakao_maps.dart';
 
 class KakaoMapController {
   final int _id;

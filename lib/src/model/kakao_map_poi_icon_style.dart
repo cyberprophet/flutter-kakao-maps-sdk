@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
+part of '../../flutter_kakao_maps.dart';
 
 class KakaoMapPoiIconStyle {
   /// Poi에 사용할 심볼을 지정합니다. 실제 Poi의 영역으로 인식되어 탭 이벤트나 경쟁을 처리하는 범위로 사용됩니다.
