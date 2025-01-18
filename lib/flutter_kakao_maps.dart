@@ -1,11 +1,11 @@
-library flutter_kakao_maps;
+library flutter_kakao_map_api;
 
 import "dart:async";
 import "dart:io";
 
 import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:flutter/widgets.dart";
 
 part 'src/asset/constants.dart';
 part 'src/controller/kakao_map_controller.dart';

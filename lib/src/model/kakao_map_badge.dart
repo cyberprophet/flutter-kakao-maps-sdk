@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps/flutter_kakao_maps.dart';
+part of '../../flutter_kakao_maps.dart';
 
 class KakaoMapBadge {
   /// Poi에서 특정 badge를 add/remove & show/hide 할 때 고유 식별자로 사용됩니다.
