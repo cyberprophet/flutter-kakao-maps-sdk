@@ -2,6 +2,7 @@ library flutter_kakao_map_api;
 
 import "dart:async";
 import "dart:io";
+import "dart:math";
 
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
@@ -31,6 +32,7 @@ part 'src/model/kakao_map_poi.dart';
 part 'src/model/kakao_map_poi_icon_style.dart';
 part 'src/model/kakao_map_poi_options.dart';
 part 'src/model/kakao_map_point.dart';
+part 'src/model/kakao_map_polygon.dart';
 part 'src/model/kakao_map_position.dart';
 part 'src/model/kakao_map_route_line.dart';
 part 'src/model/kakao_map_route_line_pattern.dart';

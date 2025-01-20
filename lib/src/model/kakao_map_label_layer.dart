@@ -31,14 +31,26 @@ class KakaoMapLabelLayer {
     return KakaoMapRouteLine(layerId, id, viewMethodChannel);
   }
 
-  Future<List<KakaoMapPoi>> addLodLabel({
+  Future<KakaoMapPoi> addLodLabel({
+    required String styleId,
+    required KakaoMapPoint position,
+  }) async {
+    final label = await viewMethodChannel.invokeMethod(
+      "addLodLabel",
+      {"layerID": layerId, "styleID": styleId, 'position': position.toMap()},
+    );
+
+    return KakaoMapPoi(layerId, label as String, viewMethodChannel);
+  }
+
+  Future<List<KakaoMapPoi>> addLodLabels({
     required String styleId,
     required List<KakaoMapPoint> positions,
   }) async {
     final list = positions.map((e) => e.toMap()).toList();
 
     final labels = await viewMethodChannel.invokeMethod(
-      "addLodLabel",
+      "addLodLabels",
       {"layerID": layerId, "styleID": styleId, 'positions': list},
     );
 
