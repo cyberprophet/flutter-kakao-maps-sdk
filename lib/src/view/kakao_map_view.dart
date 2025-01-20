@@ -5,12 +5,14 @@ class KakaoMapView extends StatefulWidget {
 
   final void Function(KakaoMapController controller)? onMapReady;
   final void Function(CameraPosition)? onCameraMove;
+  final void Function(KakaoMapPoint)? onLodLabelClicked;
 
   const KakaoMapView({
     super.key,
     this.options = const KakaoMapOptions(),
     this.onMapReady,
     this.onCameraMove,
+    this.onLodLabelClicked,
   });
 
   @override
@@ -30,6 +32,7 @@ class _KakaoMapViewState extends State<KakaoMapView> {
       id,
       widget.onMapReady,
       widget.onCameraMove,
+      widget.onLodLabelClicked,
     );
   }
 

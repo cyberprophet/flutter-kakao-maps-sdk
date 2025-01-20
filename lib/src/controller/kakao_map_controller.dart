@@ -4,10 +4,16 @@ class KakaoMapController {
   final int _id;
   final void Function(KakaoMapController controller)? _onMapReady;
   final void Function(CameraPosition)? _onCameraMove;
+  final void Function(KakaoMapPoint)? _onLodLabelClicked;
 
   late final MethodChannel _viewMethodChannel;
 
-  KakaoMapController(this._id, this._onMapReady, this._onCameraMove) {
+  KakaoMapController(
+    this._id,
+    this._onMapReady,
+    this._onCameraMove,
+    this._onLodLabelClicked,
+  ) {
     _viewMethodChannel = MethodChannel(
       _createViewMethodChannelName(_id),
       const JSONMethodCodec(),
@@ -17,6 +23,10 @@ class KakaoMapController {
       switch (call.method) {
         case 'cameraPosition' when _onCameraMove != null:
           _onCameraMove!(CameraPosition.fromJson(call.arguments));
+          break;
+
+        case 'onLodLabelClicked' when _onLodLabelClicked != null:
+          _onLodLabelClicked!(KakaoMapPoint.fromJson(call.arguments));
           break;
 
         case "onMapReady" when _onMapReady != null:
@@ -99,6 +109,13 @@ class KakaoMapController {
     return KakaoMapLabelLayer(
       layerId: layerID,
       viewMethodChannel: _viewMethodChannel,
+    );
+  }
+
+  Future addPolygon(KakaoMapPolygon polygon) async {
+    return await _viewMethodChannel.invokeMethod(
+      'addShapePolygon',
+      polygon.toMap(),
     );
   }
 

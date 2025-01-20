@@ -30,6 +30,10 @@ import com.kakao.vectormap.route.RouteLineStylesSet
 import com.kakao.vectormap.route.animation.ProgressAnimation
 import com.kakao.vectormap.route.animation.ProgressDirection
 import com.kakao.vectormap.route.animation.ProgressType
+import com.kakao.vectormap.shape.DotPoints
+import com.kakao.vectormap.shape.PolygonOptions
+import com.kakao.vectormap.shape.PolygonStyles
+import com.kakao.vectormap.shape.PolygonStylesSet
 import com.shareinvest.flutter_kakao_maps.FlutterKakaoMapsPlugin
 import com.shareinvest.flutter_kakao_maps.enum.toMapGravity
 import com.shareinvest.flutter_kakao_maps.model.KakaoMapOptions
@@ -69,7 +73,10 @@ internal class KakaoMapView(
             "addRouteLine" -> addRouteLine(call.arguments as JSONObject, result)
             "moveRouteLine" -> moveRouteLine(call.arguments as JSONObject, result)
 
+            "addShapePolygon" -> addShapePolygon(call.arguments as JSONObject, result)
+
             "addLodLabel" -> addLodLabel(call.arguments as JSONObject, result)
+            "addLodLabels" -> addLodLabels(call.arguments as JSONObject, result)
 
             "addPoi" -> addPoi(call.arguments as JSONObject, result)
             "movePoi" -> movePoi(call.arguments as JSONObject, result)
@@ -196,8 +203,86 @@ internal class KakaoMapView(
         )
     }
 
+    private fun addShapePolygon(arguments: JSONObject, result: MethodChannel.Result) {
+        Log.d("addShapePolygon", "$arguments")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val shapeManager = mapView.shapeManager ?: run {
+            result.error("NOT_FOUND_LABEL_MANAGER", "labelManager is null", null)
+            return
+        }
+
+        val shapeLayer = shapeManager.layer
+
+        val circleOptions = PolygonOptions.from(
+            DotPoints.fromCircle(
+                arguments.getJSONObject("position").toLatLng(),
+                arguments.getDouble("circleRadius").toFloat()
+            )
+        ).setStylesSet(PolygonStylesSet.from(PolygonStyles.from(arguments.getInt("circleColor"))))
+
+        val polygonOptions = PolygonOptions.from(
+            DotPoints.fromCircle(
+                arguments.getJSONObject("position").toLatLng(),
+                arguments.getDouble("polygonRadius").toFloat()
+            ).setHoleCircle(arguments.getDouble("circleRadius").toFloat())
+        ).setStylesSet(PolygonStylesSet.from(PolygonStyles.from(arguments.getInt("holeColor"))));
+
+        val circle = shapeLayer.addPolygon(circleOptions)
+        val polygon = shapeLayer.addPolygon(polygonOptions)
+
+        result.success(JSONObject().apply {
+            put("circleId", circle.id)
+            put("polygonId", polygon.id)
+        })
+    }
+
     private fun addLodLabel(arguments: JSONObject, result: MethodChannel.Result) {
         Log.d("addLodLabel", "$arguments")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val labelManager = mapView.labelManager ?: run {
+            result.error("NOT_FOUND_LABEL_MANAGER", "labelManager is null", null)
+            return
+        }
+
+        val lodLabelLayer = labelManager.lodLayer
+
+        val labelStyles = labelManager.getLabelStyles(arguments.getString("styleID")) ?: run {
+            result.error("NOT_FOUND_LABEL_STYLES", "labelStyles is null", null)
+            return
+        }
+        Log.d("lodLabelLayer", "$lodLabelLayer")
+
+        val labelOptions = arguments.getJSONObject("position").let { position ->
+            LabelOptions.from(
+                position.getString("labelId"),
+                position.toLatLng()
+            ).apply {
+                styles = labelStyles
+                clickable = true
+            }
+        }
+        Log.d("labelOptions", "$labelOptions")
+
+        val label = lodLabelLayer?.addLodLabel(labelOptions) ?: run {
+            result.error("FAILED_ADD", "failed add poi", null)
+            return
+        }
+
+        result.success(label.labelId)
+    }
+
+    private fun addLodLabels(arguments: JSONObject, result: MethodChannel.Result) {
+        Log.d("addLodLabels", "$arguments")
 
         val mapView = mapView ?: run {
             result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
@@ -220,9 +305,12 @@ internal class KakaoMapView(
         val labelOptions = arguments.getJSONArray("positions").let { positions ->
             List(positions.length()) { index ->
                 LabelOptions.from(
+                    positions.getJSONObject(index).getString("labelId"),
                     positions.getJSONObject(index).toLatLng()
                 ).apply {
                     styles = labelStyles
+                    clickable = true
+
                 }
             }
         }
@@ -1000,6 +1088,7 @@ internal class KakaoMapView(
                             options.scaleBarOptions.fadeInOutOptions.retentionTime
                         )
                     }
+
                     mapView.setOnCameraMoveEndListener { _, cameraPosition, gestureType ->
                         viewMethodChannel.invokeMethod("cameraPosition",
                             JSONObject().apply {
@@ -1014,8 +1103,18 @@ internal class KakaoMapView(
                                 put("gestureType", gestureType)
                             })
                     }
-                    mapView.cameraMaxLevel = 21
-                    mapView.cameraMinLevel = 7
+
+                    mapView.setOnLodLabelClickListener { _, _, label ->
+                        viewMethodChannel.invokeMethod("onLodLabelClicked", JSONObject().apply {
+                            put("labelId", label.labelId)
+                            put("latitude", label.position.latitude)
+                            put("longitude", label.position.longitude)
+                        })
+                        false
+                    }
+
+                    mapView.cameraMaxLevel = 20
+                    mapView.cameraMinLevel = 8
 
                     viewMethodChannel.invokeMethod("onMapReady", null)
                 }
