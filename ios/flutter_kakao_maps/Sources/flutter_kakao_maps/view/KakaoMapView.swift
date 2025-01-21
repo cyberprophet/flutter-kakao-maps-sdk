@@ -67,6 +67,34 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         result(nil)
     }
 
+    func addRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("addRouteLine")
+    }
+
+    func moveRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("moveRouteLine")
+    }
+
+    func modifyRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("modifyRouteLine")
+    }
+
+    func addShapePolygon(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("addShapePolygon")
+    }
+
+    func addLodLabel(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("addLodLabel")
+    }
+
+    func removeLodLabel(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("removeLodLabel")
+    }
+
+    func addLodLabels(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("addLodLabels")
+    }
+
     func addPoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addPoi")
 
@@ -95,6 +123,10 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         result(poi.itemID)
     }
 
+    func movePoi(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("movePoi")
+    }
+
     func removePoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("removePoi")
 
@@ -116,6 +148,10 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         labelLayer.removePoi(poiID: poiID)
 
         result(nil)
+    }
+
+    func addRouteLineStyle(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("addRouteLineStyle")
     }
 
     func addPoiIconStyle(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -219,6 +255,10 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         }
 
         result(nil)
+    }
+
+    func addLodLabelLayer(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+        printLog("addLodLabelLayer")
     }
 
     func moveCamera(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -344,6 +384,10 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         mapView.animateCamera(cameraUpdate: cameraUpdate, options: cameraAnimationOptions)
 
         result(nil)
+    }
+
+    func getCameraPosition(result _: @escaping (Any?) -> Void) {
+        printLog("getCameraPosition")
     }
 
     func setViewInfo(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
