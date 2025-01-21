@@ -3,7 +3,7 @@
 # Run `pod lib lint flutter_kakao_maps.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'flutter_kakao_maps'
+  s.name             = 'flutter_kakao_map_api'
   s.version          = '0.4.0'
   s.summary          = 'KakaoMapsSDK for Flutter'
   s.description      = <<-DESC
