@@ -171,6 +171,12 @@ internal class KakaoMapView(
             RouteLineOptions.from(segment).setStylesSet(stylesSet)
         )
 
+        if (layer.lineId.isNullOrEmpty()) {
+            result.success(layer.lineId)
+
+            return
+        }
+
         val animation = ProgressAnimation.from(layer.lineId, 0x400).apply {
             interpolation = Interpolation.Linear
             progressType = ProgressType.ToShow

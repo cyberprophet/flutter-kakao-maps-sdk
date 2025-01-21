@@ -5,7 +5,7 @@ import KakaoMapsSDK
 public class FlutterKakaoMapsPlugin: NSObject, @preconcurrency FlutterPlugin {
     private static var registrar: FlutterPluginRegistrar!
     
-    private static let BASE_ID = "dev.jerrykhw.flutter_kakao_maps_sdk"
+    private static let BASE_ID = "com.shareinvest.flutter_kakao_maps"
     
     private static let LOG_EVENT_CHANNEL_NAME = "\(BASE_ID)/log"
     

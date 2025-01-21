@@ -21,15 +21,40 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
     private func viewMethodCallHandler(call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "dispose": dispose(result: result)
+
+case            "addRouteLine" -> addRouteLine(      arguments: call.arguments as! NSDictionary, result: result)
+case            "moveRouteLine" -> moveRouteLine(    arguments: call.arguments as! NSDictionary, result: result)
+case            "modifyRouteLine" -> modifyRouteLine(arguments: call.arguments as! NSDictionary, result: result)
+case            "addShapePolygon" -> addShapePolygon(arguments: call.arguments as! NSDictionary, result: result)
+case            "addLodLabel" -> addLodLabel(        arguments: call.arguments as! NSDictionary, result: result)
+case            "removeLodLabel" -> removeLodLabel(  arguments: call.arguments as! NSDictionary, result: result)
+case            "addLodLabels" -> addLodLabels(      arguments: call.arguments as! NSDictionary, result: result)
+
+
+
+
         case "addPoi": addPoi(arguments: call.arguments as! NSDictionary, result: result)
+        case  "movePoi" -> movePoi(arguments: call.arguments as! NSDictionary,result: result)
+     
         case "removePoi": removePoi(arguments: call.arguments as! NSDictionary, result: result)
+       
+            case "addRouteLineStyle" -> addRouteLineStyle(arguments: call.arguments as! NSDictionary,result: result)
+
         case "addPoiIconStyle": addPoiIconStyle(arguments: call.arguments as! NSDictionary, result: result)
         case "changePoiIconStyle": changePoiIconStyle(arguments: call.arguments as! NSDictionary, result: result)
         case "addLabelLayer": addLabelLayer(arguments: call.arguments as! NSDictionary, result: result)
+            case  "addLodLabelLayer" -> addLodLabelLayer(arguments: call.arguments as! NSDictionary,result: result)
+
+     
         case "moveCamera": moveCamera(arguments: call.arguments as! NSDictionary, result: result)
         case "animateCamera": animateCamera(arguments: call.arguments as! NSDictionary, result: result)
         case "moveCameraTransform": moveCameraTransform(arguments: call.arguments as! NSDictionary, result: result)
         case "animateCameraTransform": animateCameraTransform(arguments: call.arguments as! NSDictionary, result: result)
+   
+          case    "getCameraPosition" -> getCameraPosition(result: result)
+
+ 
+   
         case "setViewInfo": setViewInfo(arguments: call.arguments as! NSDictionary, result: result)
         case "showOverlay": showOverlay(arguments: call.arguments as! NSDictionary, result: result)
         case "hideOverlay": hideOverlay(arguments: call.arguments as! NSDictionary, result: result)
