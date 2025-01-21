@@ -6,55 +6,41 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
     private let mapViewContainer: KMViewContainer
     private let mapController: KMController
     private var mapView: KakaoMap?
-    
+
     private var options: KakaoMapOptions
     private let viewMethodChannel: FlutterMethodChannel
-    
+
     private let viewId: Int64
-    
+
     private var auth: Bool
-    
+
     private func printLog(_ message: String) {
         FlutterKakaoMapsPlugin.logStreamHandler.sendMessage("KakaoMapView#\(viewId)[\(options.viewName)] \(message)")
     }
-    
+
     private func viewMethodCallHandler(call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "dispose": dispose(result: result)
-
-case            "addRouteLine" -> addRouteLine(      arguments: call.arguments as! NSDictionary, result: result)
-case            "moveRouteLine" -> moveRouteLine(    arguments: call.arguments as! NSDictionary, result: result)
-case            "modifyRouteLine" -> modifyRouteLine(arguments: call.arguments as! NSDictionary, result: result)
-case            "addShapePolygon" -> addShapePolygon(arguments: call.arguments as! NSDictionary, result: result)
-case            "addLodLabel" -> addLodLabel(        arguments: call.arguments as! NSDictionary, result: result)
-case            "removeLodLabel" -> removeLodLabel(  arguments: call.arguments as! NSDictionary, result: result)
-case            "addLodLabels" -> addLodLabels(      arguments: call.arguments as! NSDictionary, result: result)
-
-
-
-
+        case "addRouteLine": addRouteLine(arguments: call.arguments as! NSDictionary, result: result)
+        case "moveRouteLine": moveRouteLine(arguments: call.arguments as! NSDictionary, result: result)
+        case "modifyRouteLine": modifyRouteLine(arguments: call.arguments as! NSDictionary, result: result)
+        case "addShapePolygon": addShapePolygon(arguments: call.arguments as! NSDictionary, result: result)
+        case "addLodLabel": addLodLabel(arguments: call.arguments as! NSDictionary, result: result)
+        case "removeLodLabel": removeLodLabel(arguments: call.arguments as! NSDictionary, result: result)
+        case "addLodLabels": addLodLabels(arguments: call.arguments as! NSDictionary, result: result)
         case "addPoi": addPoi(arguments: call.arguments as! NSDictionary, result: result)
-        case  "movePoi" -> movePoi(arguments: call.arguments as! NSDictionary,result: result)
-     
+        case "movePoi": movePoi(arguments: call.arguments as! NSDictionary, result: result)
         case "removePoi": removePoi(arguments: call.arguments as! NSDictionary, result: result)
-       
-            case "addRouteLineStyle" -> addRouteLineStyle(arguments: call.arguments as! NSDictionary,result: result)
-
+        case "addRouteLineStyle": addRouteLineStyle(arguments: call.arguments as! NSDictionary, result: result)
         case "addPoiIconStyle": addPoiIconStyle(arguments: call.arguments as! NSDictionary, result: result)
         case "changePoiIconStyle": changePoiIconStyle(arguments: call.arguments as! NSDictionary, result: result)
         case "addLabelLayer": addLabelLayer(arguments: call.arguments as! NSDictionary, result: result)
-            case  "addLodLabelLayer" -> addLodLabelLayer(arguments: call.arguments as! NSDictionary,result: result)
-
-     
+        case "addLodLabelLayer": addLodLabelLayer(arguments: call.arguments as! NSDictionary, result: result)
         case "moveCamera": moveCamera(arguments: call.arguments as! NSDictionary, result: result)
         case "animateCamera": animateCamera(arguments: call.arguments as! NSDictionary, result: result)
         case "moveCameraTransform": moveCameraTransform(arguments: call.arguments as! NSDictionary, result: result)
         case "animateCameraTransform": animateCameraTransform(arguments: call.arguments as! NSDictionary, result: result)
-   
-          case    "getCameraPosition" -> getCameraPosition(result: result)
-
- 
-   
+        case "getCameraPosition": getCameraPosition(result: result)
         case "setViewInfo": setViewInfo(arguments: call.arguments as! NSDictionary, result: result)
         case "showOverlay": showOverlay(arguments: call.arguments as! NSDictionary, result: result)
         case "hideOverlay": hideOverlay(arguments: call.arguments as! NSDictionary, result: result)
@@ -70,559 +56,558 @@ case            "addLodLabels" -> addLodLabels(      arguments: call.arguments a
         default: result(FlutterMethodNotImplemented)
         }
     }
-    
-    func dispose(result: @escaping (Any?) -> ()) {
+
+    func dispose(result: @escaping (Any?) -> Void) {
         printLog("stopEngine")
-        
+
         mapController.pauseEngine()
-        
+
         viewMethodChannel.setMethodCallHandler(nil)
-        
+
         result(nil)
     }
-    
-    func addPoi(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func addPoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addPoi")
-        
+
         let layerID = arguments["layerID"] as! String
         let styleID = arguments["styleID"] as! String
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let labelManager = mapView.getLabelManager()
-        
+
         guard let labelLayer = labelManager.getLabelLayer(layerID: layerID) else {
             result(FlutterError(code: "NOT_FOUND_LABEL_LAYER", message: "labelLayer is nil", details: nil))
             return
         }
-        
+
         guard let poi = labelLayer.addPoi(option: PoiOptions(styleID: styleID), at: (arguments["at"] as! NSDictionary).toMapPoint()) else {
             result(FlutterError(code: "FAILED_ADD", message: "failed add poi", details: nil))
             return
         }
-        
+
         poi.show()
-        
+
         result(poi.itemID)
     }
-    
-    func removePoi(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func removePoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("removePoi")
-        
+
         let layerID = arguments["layerID"] as! String
         let poiID = arguments["poiID"] as! String
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let labelManager = mapView.getLabelManager()
-        
+
         guard let labelLayer = labelManager.getLabelLayer(layerID: layerID) else {
             result(FlutterError(code: "NOT_FOUND_LABEL_LAYER", message: "labelLayer is nil", details: nil))
             return
         }
-        
+
         labelLayer.removePoi(poiID: poiID)
-        
+
         result(nil)
     }
-    
-    func addPoiIconStyle(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func addPoiIconStyle(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addPoiIconStyle")
-        
+
         let styleID = arguments["styleID"] as! String
         let styles = (arguments["styles"] as! [NSDictionary])
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let labelManager = mapView.getLabelManager()
-        
-        let poiStyles = styles.map { (style) in
-            let badges = (style["badges"] as! [NSDictionary]).map { (badge) in
+
+        let poiStyles = styles.map { style in
+            let badges = (style["badges"] as! [NSDictionary]).map { badge in
                 let badgeID = style["badgeID"] as! String
-                
+
                 let imageNamed = badge["image"] as! String
                 let imagePath = FlutterKakaoMapsPlugin.getAssetPath(named: imageNamed)
-                
+
                 let height = badge["height"] as! Double
                 let width = badge["width"] as! Double
-                
-                let image = UIImage.init(contentsOfFile: imagePath)?.resized(to: CGSize(width: width, height: height))
-                
+
+                let image = UIImage(contentsOfFile: imagePath)?.resized(to: CGSize(width: width, height: height))
+
                 let offset = (badge["offset"] as! NSDictionary).toCGPoint()
                 let zOrder = badge["zOrder"] as! Int
-                
+
                 return PoiBadge(badgeID: badgeID, image: image, offset: offset, zOrder: zOrder)
             }
-            
+
             let symbolNamed = style["symbol"] as! String
             let symbolPath = FlutterKakaoMapsPlugin.getAssetPath(named: symbolNamed)
-            
+
             let height = style["height"] as! Double
             let width = style["width"] as! Double
-            
-            let symbol = UIImage.init(contentsOfFile: symbolPath)?.resized(to: CGSize(width: width, height: height))
-            
+
+            let symbol = UIImage(contentsOfFile: symbolPath)?.resized(to: CGSize(width: width, height: height))
+
             let anchorPoint = (style["anchorPoint"] as! NSDictionary).toCGPoint()
             let level = style["level"] as! Int
-            
+
             let transitionType = TransitionType(rawValue: style["transitionType"] as! Int)!
-            
-            let transition = PoiTransition.init(entrance: transitionType, exit: transitionType)
-            
+
+            let transition = PoiTransition(entrance: transitionType, exit: transitionType)
+
             return PerLevelPoiStyle(iconStyle: PoiIconStyle(symbol: symbol, anchorPoint: anchorPoint, transition: transition, badges: badges), level: level)
         }
-        
+
         let poiStyle = PoiStyle(styleID: styleID, styles: poiStyles)
-        
+
         labelManager.addPoiStyle(poiStyle)
-        
+
         result(nil)
     }
-    
-    func changePoiIconStyle(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func changePoiIconStyle(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("changePoiIconStyle")
-        
+
         let layerID = arguments["layerID"] as! String
         let poiID = arguments["poiID"] as! String
         let styleID = arguments["styleID"] as! String
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let labelManager = mapView.getLabelManager()
-        
+
         guard let labelLayer = labelManager.getLabelLayer(layerID: layerID) else {
             result(FlutterError(code: "NOT_FOUND_LABEL_LAYER", message: "labelLayer is nil", details: nil))
             return
         }
-        
+
         guard let poi = labelLayer.getPoi(poiID: poiID) else {
             result(FlutterError(code: "NOT_FOUND_POI", message: "poi is nil", details: nil))
             return
         }
-        
+
         poi.changeStyle(styleID: styleID)
-        
+
         result(nil)
     }
-    
-    func addLabelLayer(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func addLabelLayer(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addLabelLayer")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let labelManager = mapView.getLabelManager()
-        
+
         guard let labelLayer = labelManager.addLabelLayer(option: arguments.toLabelLayerOptions()) else {
             result(FlutterError(code: "FAILED_ADD", message: "failed add labelLayer", details: nil))
             return
         }
-        
+
         result(nil)
     }
-    
-    func moveCamera(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func moveCamera(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("moveCamera")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let cameraPosition = CameraUpdate.make(mapView: mapView).cameraPosition!
         var cameraTarget = cameraPosition.targetPoint
         var cameraZoomLevel = mapView.zoomLevel
         var cameraRotation = cameraPosition.rotation
         var cameraTilt = cameraPosition.tilt
-        
+
         let target = arguments["target"] as? NSDictionary
         if let target = target {
             cameraTarget = target.toMapPoint()
         }
-        
+
         let zoomLevel = arguments["zoomLevel"] as? Int
         if let zoomLevel = zoomLevel {
             cameraZoomLevel = zoomLevel
         }
-        
+
         let rotation = arguments["rotation"] as? Double
         if let rotation = rotation {
             cameraRotation = rotation
         }
-        
+
         let tilt = arguments["tilt"] as? Double
         if let tilt = tilt {
             cameraTilt = tilt
         }
-        
+
         let cameraUpdate = CameraUpdate.make(target: cameraTarget, zoomLevel: cameraZoomLevel, rotation: cameraRotation, tilt: cameraTilt, mapView: mapView)
-        
+
         mapView.moveCamera(cameraUpdate)
-        
+
         result(nil)
     }
-    
-    func animateCamera(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func animateCamera(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("animateCamera")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let cameraPosition = CameraUpdate.make(mapView: mapView).cameraPosition!
         var cameraTarget = cameraPosition.targetPoint
         var cameraZoomLevel = mapView.zoomLevel
         var cameraRotation = cameraPosition.rotation
         var cameraTilt = cameraPosition.tilt
-        
+
         let target = arguments["target"] as? NSDictionary
         if let target = target {
             cameraTarget = target.toMapPoint()
         }
-        
+
         let zoomLevel = arguments["zoomLevel"] as? Int
         if let zoomLevel = zoomLevel {
             cameraZoomLevel = zoomLevel
         }
-        
+
         let rotation = arguments["rotation"] as? Double
         if let rotation = rotation {
             cameraRotation = rotation
         }
-        
+
         let tilt = arguments["tilt"] as? Double
         if let tilt = tilt {
             cameraTilt = tilt
         }
-        
+
         let cameraAnimationOptions = (arguments["cameraAnimationOptions"] as! NSDictionary).toCameraAnimationOptions()
-        
+
         let cameraUpdate = CameraUpdate.make(target: cameraTarget, zoomLevel: cameraZoomLevel, rotation: cameraRotation, tilt: cameraTilt, mapView: mapView)
-        
+
         mapView.animateCamera(cameraUpdate: cameraUpdate, options: cameraAnimationOptions)
-        
+
         result(nil)
     }
-    
-    func moveCameraTransform(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func moveCameraTransform(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("moveCameraTransform")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let point = (arguments["point"] as! NSDictionary).toCameraTransformDelta()
         let height = arguments["height"] as! Double
         let rotation = arguments["rotation"] as! Double
         let tilt = arguments["tilt"] as! Double
-        
+
         let cameraUpdate = CameraUpdate.make(transform: CameraTransform(deltaPos: point, deltaHeight: height, deltaRotation: rotation, deltaTilt: tilt))
-        
+
         mapView.moveCamera(cameraUpdate)
-        
+
         result(nil)
     }
-    
-    func animateCameraTransform(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func animateCameraTransform(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("animateCameraTransform")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let point = (arguments["point"] as! NSDictionary).toCameraTransformDelta()
         let height = arguments["height"] as! Double
         let rotation = arguments["rotation"] as! Double
         let tilt = arguments["tilt"] as! Double
         let cameraAnimationOptions = (arguments["cameraAnimationOptions"] as! NSDictionary).toCameraAnimationOptions()
-        
+
         let cameraUpdate = CameraUpdate.make(transform: CameraTransform(deltaPos: point, deltaHeight: height, deltaRotation: rotation, deltaTilt: tilt))
-        
+
         mapView.animateCamera(cameraUpdate: cameraUpdate, options: cameraAnimationOptions)
-        
+
         result(nil)
     }
-    
-    func setViewInfo(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setViewInfo(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setViewInfo")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let appName = arguments["appName"] as! String
         let viewInfoName = arguments["viewInfoName"] as! String
-        
+
         mapView.changeViewInfo(appName: appName, viewInfoName: viewInfoName)
-        
+
         result(nil)
     }
-    
-    func showOverlay(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func showOverlay(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("showOverlay")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let overlay = arguments["overlay"] as! String
-        
+
         mapView.showOverlay(overlay)
-        
+
         result(nil)
     }
-    
-    func hideOverlay(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func hideOverlay(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("hideOverlay")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let overlay = arguments["overlay"] as! String
-        
+
         mapView.hideOverlay(overlay)
-        
+
         result(nil)
     }
-    
-    func setEnabled(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setEnabled(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setEnabled")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let enabled = arguments["enabled"] as! Bool
-        
+
         mapView.isEnabled = enabled
-        
+
         result(nil)
     }
-    
-    func setBuildingScale(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setBuildingScale(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setBuildingScale")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let buildingScale = Float(arguments["buildingScale"] as! Double)
-        
+
         mapView.buildingScale = buildingScale
-        
+
         result(nil)
     }
-    
-    func getPadding(result: @escaping (Any?) -> ()) {
+
+    func getPadding(result: @escaping (Any?) -> Void) {
         printLog("getPadding")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let margins = mapView.margins
-        
-        result(["left": margins.left, "top": margins.top, "right": margins.right, "bottom":margins.bottom])
+
+        result(["left": margins.left, "top": margins.top, "right": margins.right, "bottom": margins.bottom])
     }
-    
-    func setPadding(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setPadding(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setPadding")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let padding = arguments.toUIEdgeInsets()
-        
+
         mapView.setMargins(padding)
-        
+
         result(nil)
     }
-    
-    func setLogoPosition(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setLogoPosition(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setLogoPosition")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let logoPosition = arguments.toKakaoMapPosition()
-        
-        mapView.setLogoPosition(origin: logoPosition.alignment.toGuiAlignment(), position: CGPoint(x:logoPosition.x, y: logoPosition.y))
-        
+
+        mapView.setLogoPosition(origin: logoPosition.alignment.toGuiAlignment(), position: CGPoint(x: logoPosition.x, y: logoPosition.y))
+
         result(nil)
     }
-    
-    func setPoiOptions(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setPoiOptions(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setPoiOptions")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let poiOptions = arguments.toKakaoMapPoiOptions()
-        
+
         mapView.poiClickable = poiOptions.clickable
         mapView.setPoiEnabled(poiOptions.enabled)
         mapView.poiScale = poiOptions.scale
-        
+
         result(nil)
     }
-    
-    func setCompassOptions(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setCompassOptions(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setCompassOptions")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let compassOptions = arguments.toCompassOptions()
-        
-        if(compassOptions.enabled) {
+
+        if compassOptions.enabled {
             mapView.showCompass()
         } else {
             mapView.hideCompass()
         }
         mapView.setCompassPosition(origin: compassOptions.position.alignment.toGuiAlignment(), position: CGPoint(x: compassOptions.position.x, y: compassOptions.position.y))
-        
+
         result(nil)
     }
-    
-    func setScaleBarOptions(arguments: NSDictionary, result: @escaping (Any?) -> ()) {
+
+    func setScaleBarOptions(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("setScaleBarOptions")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         let scaleBarOptions = arguments.toScaleBarOptions()
-        
-        if(scaleBarOptions.enabled) {
+
+        if scaleBarOptions.enabled {
             mapView.showScaleBar()
         } else {
             mapView.hideScaleBar()
         }
-        mapView.setScaleBarPosition(origin: scaleBarOptions.position.alignment.toGuiAlignment(), position: CGPoint(x:scaleBarOptions.position.x, y: scaleBarOptions.position.y))
+        mapView.setScaleBarPosition(origin: scaleBarOptions.position.alignment.toGuiAlignment(), position: CGPoint(x: scaleBarOptions.position.x, y: scaleBarOptions.position.y))
         mapView.setScaleBarAutoDisappear(scaleBarOptions.autoDisabled)
         mapView.setScaleBarFadeInOutOption(scaleBarOptions.fadeInOutOptions)
-        
+
         result(nil)
     }
-    
-    func refresh(result: @escaping (Any?) -> ()) {
+
+    func refresh(result: @escaping (Any?) -> Void) {
         printLog("refresh")
-        
-        guard let mapView = self.mapView else {
+
+        guard let mapView = mapView else {
             result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
             return
         }
-        
+
         mapView.refresh()
-        
+
         result(nil)
     }
-    
+
     init(
         frame: CGRect,
         viewIdentifier viewId: Int64,
         options: KakaoMapOptions,
         viewMethodChannel: FlutterMethodChannel
     ) {
-        self.auth = false
+        auth = false
         self.viewId = viewId
         self.options = options
         self.viewMethodChannel = viewMethodChannel
-        
+
         mapViewContainer = KMViewContainer(frame: frame)
         mapController = KMController(viewContainer: mapViewContainer)
-        
-        if  mapViewContainer.proMotionDisplay == true {
+
+        if mapViewContainer.proMotionDisplay == true {
             mapController.proMotionSupport = true
         }
-        
+
         super.init()
-        
+
         viewMethodChannel.setMethodCallHandler(viewMethodCallHandler)
-        
+
         mapController.delegate = self
-        
+
         printLog("init")
     }
-    
+
     nonisolated func authenticationSucceeded() {
         Task { @MainActor in
             printLog("auth success")
-            
+
             if auth == false {
                 auth = true
                 self.mapController.activateEngine()
             }
         }
     }
-    
+
     nonisolated func authenticationFailed(_ errorCode: Int, desc: String) {
         Task { @MainActor in
             printLog("auth error code: \(errorCode)")
             printLog("auth desc: \(desc)")
-            
+
             auth = false
-            
+
             switch errorCode {
             case 499:
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.printLog("auth retry")
-                    
+
                     self.mapController.prepareEngine()
                 }
-                break;
             default:
-                break;
+                break
             }
         }
     }
-    
+
     func addViews() {
         let mapViewInfo = MapviewInfo(viewName: options.viewName, appName: options.appName, viewInfoName: options.viewInfoName, defaultPosition: options.defaultPosition, defaultLevel: options.defaultLevel, enabled: options.enabled)
-        
+
         mapController.addView(mapViewInfo)
     }
-    
-    nonisolated func addViewSucceeded(_ viewName: String, viewInfoName: String) {
+
+    nonisolated func addViewSucceeded(_: String, viewInfoName _: String) {
         Task { @MainActor in
             mapView = mapController.getView(options.viewName) as? KakaoMap
-            
+
             if let mapView = self.mapView {
                 // Overlay
-                if(options.overlay != nil) {
+                if options.overlay != nil {
                     mapView.showOverlay(options.overlay!)
                 }
                 // Language
@@ -638,14 +623,14 @@ case            "addLodLabels" -> addLodLabels(      arguments: call.arguments a
                 mapView.setPoiEnabled(options.poiOptions.enabled)
                 mapView.poiScale = options.poiOptions.scale
                 // CompassOptions
-                if(options.compassOptions.enabled) {
+                if options.compassOptions.enabled {
                     mapView.showCompass()
                 } else {
                     mapView.hideCompass()
                 }
                 mapView.setCompassPosition(origin: options.compassOptions.position.alignment.toGuiAlignment(), position: CGPoint(x: options.compassOptions.position.x, y: options.compassOptions.position.y))
                 // ScaleBarOptions
-                if(options.scaleBarOptions.enabled) {
+                if options.scaleBarOptions.enabled {
                     mapView.showScaleBar()
                 } else {
                     mapView.hideScaleBar()
@@ -653,16 +638,16 @@ case            "addLodLabels" -> addLodLabels(      arguments: call.arguments a
                 mapView.setScaleBarPosition(origin: options.scaleBarOptions.position.alignment.toGuiAlignment(), position: CGPoint(x: options.scaleBarOptions.position.x, y: options.scaleBarOptions.position.y))
                 mapView.setScaleBarAutoDisappear(options.scaleBarOptions.autoDisabled)
                 mapView.setScaleBarFadeInOutOption(options.scaleBarOptions.fadeInOutOptions)
-                
+
                 viewMethodChannel.invokeMethod("onMapReady", arguments: nil)
             }
         }
     }
-    
+
     func view() -> UIView {
         printLog("initEngine")
         mapController.prepareEngine()
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if self.auth {
                 self.printLog("startEngine")
@@ -672,7 +657,7 @@ case            "addLodLabels" -> addLodLabels(      arguments: call.arguments a
                 self.mapController.prepareEngine()
             }
         }
-        
+
         return mapViewContainer
     }
 }
