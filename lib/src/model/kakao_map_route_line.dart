@@ -13,6 +13,13 @@ class KakaoMapRouteLine {
       'lineId': id,
     });
   }
+
+  Future modifyRouteLine(KakaoMapPoint point) async {
+    await _viewMethodChannel.invokeMethod('modifyRouteLine', {
+      'point': point.toMap(),
+      'lineId': id,
+    });
+  }
 }
 
 extension KakaoMapRouteLineExtension on KakaoMapRouteLine {

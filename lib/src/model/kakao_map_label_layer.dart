@@ -43,6 +43,13 @@ class KakaoMapLabelLayer {
     return KakaoMapPoi(layerId, label as String, viewMethodChannel);
   }
 
+  Future removeLodLabel(String? labelId) async {
+    if (labelId != null && labelId.isNotEmpty) {
+      await viewMethodChannel
+          .invokeMethod('removeLodLabel', {'labelId': labelId});
+    }
+  }
+
   Future<List<KakaoMapPoi>> addLodLabels({
     required String styleId,
     required List<KakaoMapPoint> positions,

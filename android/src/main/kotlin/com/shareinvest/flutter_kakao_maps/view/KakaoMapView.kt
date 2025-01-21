@@ -72,10 +72,12 @@ internal class KakaoMapView(
 
             "addRouteLine" -> addRouteLine(call.arguments as JSONObject, result)
             "moveRouteLine" -> moveRouteLine(call.arguments as JSONObject, result)
+            "modifyRouteLine" -> modifyRouteLine(call.arguments as JSONObject, result)
 
             "addShapePolygon" -> addShapePolygon(call.arguments as JSONObject, result)
 
             "addLodLabel" -> addLodLabel(call.arguments as JSONObject, result)
+            "removeLodLabel" -> removeLodLabel(call.arguments as JSONObject, result)
             "addLodLabels" -> addLodLabels(call.arguments as JSONObject, result)
 
             "addPoi" -> addPoi(call.arguments as JSONObject, result)
@@ -201,6 +203,34 @@ internal class KakaoMapView(
         routeLine.changeSegments(
             routeLine.segments.first().addPoints(arguments.getJSONObject("point").toLatLng())
         )
+
+        result.success(routeLine.lineId)
+    }
+
+    private fun modifyRouteLine(arguments: JSONObject, result: MethodChannel.Result) {
+        printLog("modifyRouteLine")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val routeLineManager = mapView.routeLineManager ?: run {
+            result.error("NOT_FOUND_ROUTE_LINE_MANAGER", "routeLineManager is null", null)
+            return
+        }
+
+        val routeLine = routeLineManager.layer.getRouteLine(arguments.getString("lineId"))
+
+        val e = routeLine.segments.first()
+
+        routeLine.changeSegments(
+            e.setPoints(
+                e.points.dropLast(1) + arguments.getJSONObject("point").toLatLng()
+            )
+        )
+
+        result.success(routeLine.lineId)
     }
 
     private fun addShapePolygon(arguments: JSONObject, result: MethodChannel.Result) {
@@ -281,6 +311,28 @@ internal class KakaoMapView(
         result.success(label.labelId)
     }
 
+    private fun removeLodLabel(arguments: JSONObject, result: MethodChannel.Result) {
+        Log.d("removeLodLabel", "$arguments")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val labelManager = mapView.labelManager ?: run {
+            result.error("NOT_FOUND_LABEL_MANAGER", "labelManager is null", null)
+            return
+        }
+
+        val lodLabelLayer = labelManager.lodLayer
+
+        val label = lodLabelLayer?.getLabel(arguments.getString("labelId"))
+
+        lodLabelLayer?.remove(label)
+
+        result.success(label?.labelId)
+    }
+
     private fun addLodLabels(arguments: JSONObject, result: MethodChannel.Result) {
         Log.d("addLodLabels", "$arguments")
 
@@ -310,7 +362,6 @@ internal class KakaoMapView(
                 ).apply {
                     styles = labelStyles
                     clickable = true
-
                 }
             }
         }
