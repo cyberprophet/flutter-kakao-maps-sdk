@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
+part of '../../flutter_kakao_maps.dart';
 
 /// 카메라 애니메이션 옵션
 class CameraAnimationOptions {

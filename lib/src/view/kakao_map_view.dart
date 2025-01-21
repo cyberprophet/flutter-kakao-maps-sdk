@@ -1,16 +1,18 @@
-part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
+part of '../../flutter_kakao_maps.dart';
 
 class KakaoMapView extends StatefulWidget {
-  /// 지도 옵션
   final KakaoMapOptions options;
 
-  /// 지도 생성 후 콜백
   final void Function(KakaoMapController controller)? onMapReady;
+  final void Function(CameraPosition)? onCameraMove;
+  final void Function(KakaoMapPoint)? onLodLabelClicked;
 
   const KakaoMapView({
     super.key,
     this.options = const KakaoMapOptions(),
     this.onMapReady,
+    this.onCameraMove,
+    this.onLodLabelClicked,
   });
 
   @override
@@ -26,7 +28,12 @@ class _KakaoMapViewState extends State<KakaoMapView> {
   }
 
   void _onPlatformViewCreated(int id) {
-    _controller = KakaoMapController(id, widget.onMapReady);
+    _controller = KakaoMapController(
+      id,
+      widget.onMapReady,
+      widget.onCameraMove,
+      widget.onLodLabelClicked,
+    );
   }
 
   @override
@@ -38,9 +45,10 @@ class _KakaoMapViewState extends State<KakaoMapView> {
 
   @override
   Widget build(BuildContext context) {
-    assert(widget.options.defaultLevel < 22,
-        "The maximum zoom level is up to 21.");
-
+    assert(
+      widget.options.defaultLevel < 22,
+      "The maximum zoom level is up to 21.",
+    );
     const viewType = _kakaoMapViewViewId;
     final creationParams = widget.options.toMap();
     const creationParamsCodec = JSONMessageCodec();
@@ -53,6 +61,7 @@ class _KakaoMapViewState extends State<KakaoMapView> {
           creationParamsCodec: creationParamsCodec,
           onPlatformViewCreated: _onPlatformViewCreated,
         );
+
       case TargetPlatform.iOS:
         return UiKitView(
           viewType: viewType,
@@ -60,6 +69,7 @@ class _KakaoMapViewState extends State<KakaoMapView> {
           creationParamsCodec: creationParamsCodec,
           onPlatformViewCreated: _onPlatformViewCreated,
         );
+
       default:
         throw PlatformException(code: "unsupportedPlatform");
     }

@@ -1,8 +1,8 @@
-group 'dev.jerrykhw.flutter_kakao_maps_sdk'
-version '0.3.0'
+group 'com.shareinvest.flutter_kakao_maps'
+version '1.0.0'
 
 buildscript {
-    ext.kotlin_version = '1.9.20'
+    ext.kotlin_version = '1.9.0'
     repositories {
         google()
         mavenCentral()
@@ -18,8 +18,8 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { 
-            url 'https://devrepo.kakao.com/nexus/repository/kakaomap-releases/' 
+        maven {
+            url 'https://devrepo.kakao.com/nexus/repository/kakaomap-releases/'
         }
     }
 }
@@ -29,10 +29,9 @@ apply plugin: 'kotlin-android'
 
 android {
     if (project.android.hasProperty("namespace")) {
-        namespace 'dev.jerrykhw.flutter_kakao_maps_sdk'
+        namespace 'com.shareinvest.flutter_kakao_maps'
     }
-
-    compileSdkVersion 35
+    compileSdkVersion 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -49,12 +48,12 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 24
     }
 
     dependencies {
         implementation 'com.kakao.maps.open:android:2.12.8'
-        
+
         testImplementation 'org.jetbrains.kotlin:kotlin-test'
         testImplementation 'org.mockito:mockito-core:5.2.0'
     }
@@ -64,9 +63,9 @@ android {
             useJUnitPlatform()
 
             testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
             }
         }
     }

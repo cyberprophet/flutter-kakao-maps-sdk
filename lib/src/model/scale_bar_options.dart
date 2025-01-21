@@ -1,4 +1,4 @@
-part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
+part of '../../flutter_kakao_maps.dart';
 
 /// 축척 설정
 class ScaleBarOptions {

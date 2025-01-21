@@ -1,23 +1,36 @@
-part of 'package:flutter_kakao_maps_sdk/flutter_kakao_maps_sdk.dart';
+part of '../../flutter_kakao_maps.dart';
 
 class KakaoMapController {
   final int _id;
   final void Function(KakaoMapController controller)? _onMapReady;
+  final void Function(CameraPosition)? _onCameraMove;
+  final void Function(KakaoMapPoint)? _onLodLabelClicked;
 
   late final MethodChannel _viewMethodChannel;
 
-  KakaoMapController(this._id, this._onMapReady) {
+  KakaoMapController(
+    this._id,
+    this._onMapReady,
+    this._onCameraMove,
+    this._onLodLabelClicked,
+  ) {
     _viewMethodChannel = MethodChannel(
-        _createViewMethodChannelName(_id), const JSONMethodCodec());
+      _createViewMethodChannelName(_id),
+      const JSONMethodCodec(),
+    );
 
     _viewMethodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
-        case "onMapReady":
-          if (_onMapReady != null) {
-            _onMapReady!(this);
-          }
+        case 'cameraPosition' when _onCameraMove != null:
+          _onCameraMove!(CameraPosition.fromJson(call.arguments));
           break;
-        default:
+
+        case 'onLodLabelClicked' when _onLodLabelClicked != null:
+          _onLodLabelClicked!(KakaoMapPoint.fromJson(call.arguments));
+          break;
+
+        case "onMapReady" when _onMapReady != null:
+          _onMapReady!(this);
           break;
       }
     });
@@ -69,7 +82,41 @@ class KakaoMapController {
       },
     );
 
-    return KakaoMapLabelLayer(layerID, _viewMethodChannel);
+    return KakaoMapLabelLayer(
+      layerId: layerID,
+      viewMethodChannel: _viewMethodChannel,
+    );
+  }
+
+  Future<KakaoMapLabelLayer> addLodLabelLayer({
+    required String layerID,
+    KakaoMapCompetitionType competitionType = KakaoMapCompetitionType.none,
+    KakaoMapCompetitionUnit competitionUnit = KakaoMapCompetitionUnit.poi,
+    KakaoMapOrderType orderType = KakaoMapOrderType.rank,
+    int zOrder = 0,
+  }) async {
+    await _viewMethodChannel.invokeMethod(
+      "addLodLabelLayer",
+      {
+        "layerID": layerID,
+        "competitionType": competitionType.toInt(),
+        "competitionUnit": competitionUnit.toInt(),
+        "orderType": orderType.toInt(),
+        "zOrder": zOrder,
+      },
+    );
+
+    return KakaoMapLabelLayer(
+      layerId: layerID,
+      viewMethodChannel: _viewMethodChannel,
+    );
+  }
+
+  Future addPolygon(KakaoMapPolygon polygon) async {
+    return await _viewMethodChannel.invokeMethod(
+      'addShapePolygon',
+      polygon.toMap(),
+    );
   }
 
   /// 카메라 이동
@@ -185,6 +232,13 @@ class KakaoMapController {
       "tilt": tilt,
       "cameraAnimationOptions": cameraAnimationOptions.toMap(),
     });
+  }
+
+  Future<CameraPosition> getCameraPosition() async {
+    final cameraPosition = await _viewMethodChannel
+        .invokeMethod("getCameraPosition") as Map<String, dynamic>;
+
+    return CameraPosition.fromJson(cameraPosition);
   }
 
   /// ViewInfo 설정
