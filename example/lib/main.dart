@@ -5,19 +5,20 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_kakao_map_api/flutter_kakao_maps.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:screenshot/screenshot.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: '.env');
-
   if (kDebugMode) {
+    await dotenv.load(fileName: '.env');
+
+    KakaoMapsSDK.instance.init(
+      appKey: dotenv.env['NATIVE']!,
+      debug: kDebugMode,
+    );
     print(await KakaoSdk.origin);
   }
-  KakaoMapsSDK.instance.init(
-    appKey: dotenv.env['NATIVE']!,
-    debug: kDebugMode,
-  );
   runApp(const MyApp());
 }
 
@@ -1056,6 +1057,10 @@ class _MapLayerViewState extends State<MapLayerView> {
   late final KakaoMapLabelLayer lodLabelLayer;
   late final KakaoMapPoi poi;
 
+  Image? _image;
+
+  final screenshotController = ScreenshotController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1063,7 +1068,7 @@ class _MapLayerViewState extends State<MapLayerView> {
         title: const Text("지도 레이어"),
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.list),
+        child: _image ?? const Icon(Icons.list),
         onPressed: () {
           showCupertinoModalPopup(
             context: context,
@@ -1082,6 +1087,21 @@ class _MapLayerViewState extends State<MapLayerView> {
                         latitude: 37.402001,
                       ),
                     ));
+
+                    // if (kDebugMode) {
+                    //   print((await kakaoMapController.takeSnapshot()).length);
+                    // }
+                    screenshotController
+                        .capture(delay: const Duration(milliseconds: 10))
+                        .then((capturedImage) async {
+                      setState(() {
+                        _image = Image.memory(capturedImage!);
+                      });
+                    }).catchError((onError) {
+                      if (kDebugMode) {
+                        print(onError);
+                      }
+                    });
                   },
                   child: const Text("STYLE1"),
                 ),
@@ -1130,6 +1150,18 @@ class _MapLayerViewState extends State<MapLayerView> {
                       longitude: 127.709778,
                       latitude: 37.303101,
                     ));
+
+                    await routeLine.moveRouteLine(const KakaoMapPoint(
+                      longitude: 127.739778,
+                      latitude: 37.333101,
+                    ));
+
+                    await Future.delayed(const Duration(seconds: 5));
+
+                    await routeLine.modifyRouteLine(const KakaoMapPoint(
+                      longitude: 127.108678,
+                      latitude: 37.402001,
+                    ));
                   },
                   child: const Text("Move"),
                 ),
@@ -1138,104 +1170,131 @@ class _MapLayerViewState extends State<MapLayerView> {
           );
         },
       ),
-      body: KakaoMapView(
-        options: const KakaoMapOptions(),
-        onCameraMove: (cp) {
-          if (kDebugMode) {
-            print(cp);
-          }
-        },
-        onLodLabelClicked: (label) {
-          if (kDebugMode) {
-            print(label);
-          }
-        },
-        onMapReady: (controller) async {
-          labelLayer = await controller.addLabelLayer(layerID: "labelLayer1");
+      body: Screenshot(
+        controller: screenshotController,
+        child: KakaoMapView(
+          options: const KakaoMapOptions(),
+          onCameraMove: (cp) {
+            if (kDebugMode) {
+              print(cp);
+            }
+          },
+          onLodLabelClicked: (label) async {
+            if (kDebugMode) {
+              print(await labelLayer.removeLodLabel(label.labelId));
+            }
+          },
+          onMapReady: (controller) async {
+            labelLayer = await controller.addLabelLayer(layerID: "labelLayer1");
 
-          await controller.addPoiIconStyle(
-            styleID: "style1",
-            styles: [
-              const KakaoMapPoiIconStyle(
-                symbol: "assets/pin.png",
-                height: 10,
-                width: 10,
-                anchorPoint: KakaoMapPoint(longitude: 0.5, latitude: 1),
-              ),
-            ],
-          );
-
-          await controller.addPoiIconStyle(
-            styleID: "style2",
-            styles: [
-              const KakaoMapPoiIconStyle(
-                symbol: "assets/buttons/btn_warning_location.png",
-                height: 20,
-                width: 20,
-                anchorPoint: KakaoMapPoint(longitude: 0.5, latitude: 1),
-              ),
-            ],
-          );
-
-          poi = await labelLayer.addPoi(
-            styleID: "style1",
-            at: const KakaoMapPoint(
-              longitude: 127.108678,
-              latitude: 37.402001,
-            ),
-          );
-
-          if (kDebugMode) {
-            print(await labelLayer.addLodLabels(
-              styleId: 'style2',
-              positions: [
-                const KakaoMapPoint(
-                    labelId: "1", longitude: 127.108178, latitude: 37.405001),
-                const KakaoMapPoint(
-                    labelId: "2", longitude: 127.108278, latitude: 37.404001),
-                const KakaoMapPoint(
-                    labelId: "3", longitude: 127.108378, latitude: 37.403001),
-                const KakaoMapPoint(
-                    labelId: "4", longitude: 127.108478, latitude: 37.402091),
-                const KakaoMapPoint(
-                    labelId: "5", longitude: 127.108578, latitude: 37.402081),
-                const KakaoMapPoint(
-                    labelId: "6", longitude: 127.108678, latitude: 37.402071),
-                const KakaoMapPoint(
-                    labelId: "7", longitude: 127.108778, latitude: 37.402061),
-                const KakaoMapPoint(
-                    labelId: "8", longitude: 127.108878, latitude: 37.402051),
-                const KakaoMapPoint(
-                    labelId: "9", longitude: 127.108978, latitude: 37.402041),
-                const KakaoMapPoint(
-                    labelId: "10", longitude: 127.108618, latitude: 37.402031),
-                const KakaoMapPoint(
-                    labelId: "11", longitude: 127.108628, latitude: 37.402021),
-                const KakaoMapPoint(
-                    labelId: "12", longitude: 127.108638, latitude: 37.402011),
-                const KakaoMapPoint(
-                    labelId: "13", longitude: 127.108648, latitude: 37.402901),
-                const KakaoMapPoint(
-                    labelId: "14", longitude: 127.108658, latitude: 37.402801),
-                const KakaoMapPoint(
-                    labelId: "15", longitude: 127.108668, latitude: 37.402701),
-                const KakaoMapPoint(
-                    labelId: "16", longitude: 127.108678, latitude: 37.402601),
-                const KakaoMapPoint(
-                    labelId: "17", longitude: 127.108688, latitude: 37.402501),
-                const KakaoMapPoint(
-                    labelId: "18", longitude: 127.108698, latitude: 37.402401),
-                const KakaoMapPoint(
-                    labelId: "19", longitude: 127.108679, latitude: 37.402301),
-                const KakaoMapPoint(
-                    labelId: "20", longitude: 127.108671, latitude: 37.402201),
-                const KakaoMapPoint(
-                    labelId: "21", longitude: 127.108672, latitude: 37.402101),
+            await controller.addPoiIconStyle(
+              styleID: "style1",
+              styles: [
+                const KakaoMapPoiIconStyle(
+                  symbol: "assets/pin.png",
+                  height: 10,
+                  width: 10,
+                  anchorPoint: KakaoMapPoint(longitude: 0.5, latitude: 1),
+                ),
               ],
-            ));
-          }
-          kakaoMapController = controller;
-        },
+            );
+
+            await controller.addPoiIconStyle(
+              styleID: "style2",
+              styles: [
+                const KakaoMapPoiIconStyle(
+                  symbol: "assets/buttons/btn_warning_location.png",
+                  height: 20,
+                  width: 20,
+                  anchorPoint: KakaoMapPoint(longitude: 0.5, latitude: 1),
+                ),
+              ],
+            );
+
+            poi = await labelLayer.addPoi(
+              styleID: "style1",
+              at: const KakaoMapPoint(
+                longitude: 127.108678,
+                latitude: 37.402001,
+              ),
+            );
+
+            if (kDebugMode) {
+              print(await labelLayer.addLodLabels(
+                styleId: 'style2',
+                positions: [
+                  const KakaoMapPoint(
+                      labelId: "1", longitude: 127.108178, latitude: 37.405001),
+                  const KakaoMapPoint(
+                      labelId: "2", longitude: 127.108278, latitude: 37.404001),
+                  const KakaoMapPoint(
+                      labelId: "3", longitude: 127.108378, latitude: 37.403001),
+                  const KakaoMapPoint(
+                      labelId: "4", longitude: 127.108478, latitude: 37.402091),
+                  const KakaoMapPoint(
+                      labelId: "5", longitude: 127.108578, latitude: 37.402081),
+                  const KakaoMapPoint(
+                      labelId: "6", longitude: 127.108678, latitude: 37.402071),
+                  const KakaoMapPoint(
+                      labelId: "7", longitude: 127.108778, latitude: 37.402061),
+                  const KakaoMapPoint(
+                      labelId: "8", longitude: 127.108878, latitude: 37.402051),
+                  const KakaoMapPoint(
+                      labelId: "9", longitude: 127.108978, latitude: 37.402041),
+                  const KakaoMapPoint(
+                      labelId: "10",
+                      longitude: 127.108618,
+                      latitude: 37.402031),
+                  const KakaoMapPoint(
+                      labelId: "11",
+                      longitude: 127.108628,
+                      latitude: 37.402021),
+                  const KakaoMapPoint(
+                      labelId: "12",
+                      longitude: 127.108638,
+                      latitude: 37.402011),
+                  const KakaoMapPoint(
+                      labelId: "13",
+                      longitude: 127.108648,
+                      latitude: 37.402901),
+                  const KakaoMapPoint(
+                      labelId: "14",
+                      longitude: 127.108658,
+                      latitude: 37.402801),
+                  const KakaoMapPoint(
+                      labelId: "15",
+                      longitude: 127.108668,
+                      latitude: 37.402701),
+                  const KakaoMapPoint(
+                      labelId: "16",
+                      longitude: 127.108678,
+                      latitude: 37.402601),
+                  const KakaoMapPoint(
+                      labelId: "17",
+                      longitude: 127.108688,
+                      latitude: 37.402501),
+                  const KakaoMapPoint(
+                      labelId: "18",
+                      longitude: 127.108698,
+                      latitude: 37.402401),
+                  const KakaoMapPoint(
+                      labelId: "19",
+                      longitude: 127.108679,
+                      latitude: 37.402301),
+                  const KakaoMapPoint(
+                      labelId: "20",
+                      longitude: 127.108671,
+                      latitude: 37.402201),
+                  const KakaoMapPoint(
+                      labelId: "21",
+                      longitude: 127.108672,
+                      latitude: 37.402101),
+                ],
+              ));
+            }
+            kakaoMapController = controller;
+          },
+        ),
       ),
     );
   }

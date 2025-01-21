@@ -35,6 +35,8 @@ dependencies:
 
   fluttertoast: ^8.2.2
 
+  screenshot: ^3.0.0
+
 dev_dependencies:
   integration_test:
     sdk: flutter
