@@ -69,6 +69,52 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
 
     func addRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
         printLog("addRouteLine")
+
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let layerID = arguments["layerId"] as? String ?? "routeLine"
+        let zOrder = arguments["zOrder"] as? Int ?? 0
+        let styleID = arguments["styleId"] as? String ?? "routeStyle"
+
+        let manager = mapView.getRouteManager()
+
+        guard let layer= manager.addRouteLayer(layerID: layerID, zOrder: zOrder)else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE_LAYER", message: "routeLayer is nil", details: nil))
+            return
+        }
+
+        let styleSet = RouteStyleSet(styleID: styleID)
+
+        if let stylesArray = arguments["lineStyles"] as? [[String: Any]] {
+    let routeLineStyles = stylesArray.map { $0.toRouteLineOptions() }
+
+    styleSet.addStyle(RouteStyle(styles: routeLineStyles))
+}
+
+manager.addRouteStyleSet(styleSet)
+
+if let pointArray = arguments["points"] as? [[String: Any]]{
+let points = pointArray.map {$0.toMapPoint()}
+
+let args: [String: Any] = [
+    "points": points,
+    "styleIndex": arguments["styleIndex"] as? Int ?? 0
+]
+
+
+
+layer.addRoute(routeID: layerID, styleID: styleID, zOrder: 0, segments: args.toRouteSegment() ).show()
+}
+
+if layer.layerID.isEmpty {
+            result(layer.layerID)
+
+            return
+        }
+
     }
 
     func moveRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
