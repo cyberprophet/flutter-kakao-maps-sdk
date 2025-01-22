@@ -33,8 +33,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainView extends StatelessWidget {
+class MainView extends StatefulWidget {
   const MainView({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ViewState();
+}
+
+class _ViewState extends State<MainView> {
+  final screenshotController = ScreenshotController();
+
+  MemoryImage? _image;
 
   @override
   Widget build(BuildContext context) {
@@ -42,65 +51,85 @@ class MainView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('카카오 지도 예제'),
       ),
-      body: const Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
+      body: GestureDetector(
+        onTap: () {
+          screenshotController
+              .capture(
+                  pixelRatio: MediaQuery.of(context).devicePixelRatio * 2,
+                  delay: const Duration(milliseconds: 0x200))
+              .then((capturedImage) async {
+            setState(() {
+              _image = MemoryImage(capturedImage!);
+            });
+          }).catchError((onError) {
+            if (kDebugMode) {
+              print(onError);
+            }
+          });
+        },
+        child: Screenshot(
+          controller: screenshotController,
+          child: const Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MainItem(
+                        "지도 종류",
+                        targetView: MapTypeView(),
+                      ),
+                      MainItem(
+                        "지도 오버레이",
+                        targetView: MapOverlayView(),
+                      ),
+                      MainItem(
+                        "지도 활성화",
+                        targetView: MapEnabledView(),
+                      ),
+                      MainItem(
+                        "지도 빌딩 스케일",
+                        targetView: MapBuildingScaleView(),
+                      ),
+                      MainItem(
+                        "지도 패딩",
+                        targetView: MapPaddingView(),
+                      ),
+                      MainItem(
+                        "지도 로고",
+                        targetView: MapLogoView(),
+                      ),
+                      MainItem(
+                        "지도 포이",
+                        targetView: MapPoiView(),
+                      ),
+                      MainItem(
+                        "지도 나침반",
+                        targetView: MapCompassView(),
+                      ),
+                      MainItem(
+                        "지도 축척",
+                        targetView: MapScaleBarView(),
+                      ),
+                      MainItem(
+                        "지도 이동",
+                        targetView: MapMoveView(),
+                      ),
+                      MainItem(
+                        "지도 레이어",
+                        targetView: MapLayerView(),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  MainItem(
-                    "지도 종류",
-                    targetView: MapTypeView(),
-                  ),
-                  MainItem(
-                    "지도 오버레이",
-                    targetView: MapOverlayView(),
-                  ),
-                  MainItem(
-                    "지도 활성화",
-                    targetView: MapEnabledView(),
-                  ),
-                  MainItem(
-                    "지도 빌딩 스케일",
-                    targetView: MapBuildingScaleView(),
-                  ),
-                  MainItem(
-                    "지도 패딩",
-                    targetView: MapPaddingView(),
-                  ),
-                  MainItem(
-                    "지도 로고",
-                    targetView: MapLogoView(),
-                  ),
-                  MainItem(
-                    "지도 포이",
-                    targetView: MapPoiView(),
-                  ),
-                  MainItem(
-                    "지도 나침반",
-                    targetView: MapCompassView(),
-                  ),
-                  MainItem(
-                    "지도 축척",
-                    targetView: MapScaleBarView(),
-                  ),
-                  MainItem(
-                    "지도 이동",
-                    targetView: MapMoveView(),
-                  ),
-                  MainItem(
-                    "지도 레이어",
-                    targetView: MapLayerView(),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -1076,32 +1105,36 @@ class _MapLayerViewState extends State<MapLayerView> {
               actions: [
                 CupertinoActionSheetAction(
                   onPressed: () async {
-                    await poi.changePoiIconStyle(
-                      styleID: "style1",
-                    );
-                    if (context.mounted) Navigator.pop(context);
-
-                    kakaoMapController.addPolygon(const KakaoMapPolygon(
-                      point: KakaoMapPoint(
-                        longitude: 127.108678,
-                        latitude: 37.402001,
-                      ),
-                    ));
-
-                    // if (kDebugMode) {
-                    //   print((await kakaoMapController.takeSnapshot()).length);
-                    // }
                     screenshotController
-                        .capture(delay: const Duration(milliseconds: 10))
+                        .capture(
+                            pixelRatio: MediaQuery.of(context).devicePixelRatio,
+                            delay: const Duration(milliseconds: 0x200))
                         .then((capturedImage) async {
                       setState(() {
                         _image = Image.memory(capturedImage!);
+
+                        print(_image);
                       });
                     }).catchError((onError) {
                       if (kDebugMode) {
                         print(onError);
                       }
                     });
+                    await poi.changePoiIconStyle(
+                      styleID: "style1",
+                    );
+                    if (context.mounted) Navigator.pop(context);
+/*
+                    kakaoMapController.addPolygon(const KakaoMapPolygon(
+                      point: KakaoMapPoint(
+                        longitude: 127.108678,
+                        latitude: 37.402001,
+                      ),
+                    ));
+*/
+                    // if (kDebugMode) {
+                    //   print((await kakaoMapController.takeSnapshot()).length);
+                    // }
                   },
                   child: const Text("STYLE1"),
                 ),
@@ -1112,7 +1145,7 @@ class _MapLayerViewState extends State<MapLayerView> {
                     );
                     if (context.mounted) Navigator.pop(context);
 
-                    await labelLayer.addLodLabel(
+                    await lodLabelLayer.addLodLabel(
                       styleId: 'style2',
                       position: const KakaoMapPoint(
                         labelId: 'point',
@@ -1129,10 +1162,6 @@ class _MapLayerViewState extends State<MapLayerView> {
                       longitude: 127.708678,
                       latitude: 37.102001,
                     );
-                    await poi.movePoi(
-                      at: point,
-                      poiId: poi.id,
-                    );
                     final routeLine = await labelLayer.addRouteLine(
                       [const KakaoMapRouteLineStyle()],
                       [
@@ -1143,6 +1172,7 @@ class _MapLayerViewState extends State<MapLayerView> {
                         point
                       ],
                     );
+                    //await poi.movePoi(at: point, poiId: poi.id);
 
                     if (context.mounted) Navigator.pop(context);
 
@@ -1186,6 +1216,8 @@ class _MapLayerViewState extends State<MapLayerView> {
           },
           onMapReady: (controller) async {
             labelLayer = await controller.addLabelLayer(layerID: "labelLayer1");
+            lodLabelLayer =
+                await controller.addLodLabelLayer(layerID: "lodlabelLayer1");
 
             await controller.addPoiIconStyle(
               styleID: "style1",
@@ -1220,7 +1252,7 @@ class _MapLayerViewState extends State<MapLayerView> {
             );
 
             if (kDebugMode) {
-              print(await labelLayer.addLodLabels(
+              print(await lodLabelLayer.addLodLabels(
                 styleId: 'style2',
                 positions: [
                   const KakaoMapPoint(
