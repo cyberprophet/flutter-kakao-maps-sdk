@@ -64,4 +64,11 @@ extension NSDictionary {
     func toLabelLayerOptions() -> LabelLayerOptions {
         return LabelLayerOptions(layerID: self["layerID"] as! String, competitionType: CompetitionType(rawValue: (self["competitionType"] as! Int))!, competitionUnit: CompetitionUnit(rawValue: (self["competitionUnit"] as! Int))!, orderType: OrderingType(rawValue: (self["orderType"] as! Int))!, zOrder: self["zOrder"] as! Int)
     }
+
+    func toRouteLineOptions() -> PerLevelRouteStyle {
+        let lineWidth = self["lineWidth"] as? Double ?? 0
+        let lineColor = self["lineColor"] as? Int ?? 0
+
+        return init(width: lineWidth, color: UIColor(hex: lineColor), level:0, patternIndex:-1)
+    }
 }
