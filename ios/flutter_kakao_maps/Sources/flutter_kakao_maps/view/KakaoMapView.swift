@@ -2,7 +2,7 @@
 import KakaoMapsSDK
 
 @MainActor
-class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurrency MapControllerDelegate {
+class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurrency MapControllerDelegate, KakaoMapEventDelegate {
     private let mapViewContainer: KMViewContainer
     private let mapController: KMController
     private var mapView: KakaoMap?
@@ -67,7 +67,7 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         result(nil)
     }
 
-    func addRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func addRouteLine(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addRouteLine")
 
         guard let mapView = mapView else {
@@ -76,69 +76,182 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         }
 
         let layerID = arguments["layerId"] as? String ?? "routeLine"
-        let zOrder = arguments["zOrder"] as? Int ?? 0
         let styleID = arguments["styleId"] as? String ?? "routeStyle"
+        let styleIndex = arguments["styleIndex"] as? Int ?? 0
+        let zOrder = arguments["zOrder"] as? Int ?? 0
 
         let manager = mapView.getRouteManager()
 
-        guard let layer= manager.addRouteLayer(layerID: layerID, zOrder: zOrder)else {
+        guard let layer = manager.addRouteLayer(layerID: layerID, zOrder: zOrder) else {
             result(FlutterError(code: "NOT_FOUND_ROUTE_LAYER", message: "routeLayer is nil", details: nil))
             return
         }
 
         let styleSet = RouteStyleSet(styleID: styleID)
 
-        if let stylesArray = arguments["lineStyles"] as? [[String: Any]] {
-    let routeLineStyles = stylesArray.map { $0.toRouteLineOptions() }
+        if let stylesArray = arguments["lineStyles"] as? [NSDictionary] {
+            let routeLineStyles = stylesArray.map { $0.toRouteLineOptions() }
 
-    styleSet.addStyle(RouteStyle(styles: routeLineStyles))
-}
+            styleSet.addStyle(RouteStyle(styles: routeLineStyles))
+        }
 
-manager.addRouteStyleSet(styleSet)
+        var route: Route?
 
-if let pointArray = arguments["points"] as? [[String: Any]]{
-let points = pointArray.map {$0.toMapPoint()}
+        manager.addRouteStyleSet(styleSet)
 
-let args: [String: Any] = [
-    "points": points,
-    "styleIndex": arguments["styleIndex"] as? Int ?? 0
-]
+        if let pointArray = arguments["points"] as? [NSDictionary] {
+            let points = pointArray.map { $0.toMapPoint() }
 
+            let routeSegment = RouteSegment(points: points, styleIndex: UInt(styleIndex))
+            let routeOptions = RouteOptions(styleID: styleID, zOrder: 0)
 
+            routeOptions.segments = [routeSegment]
 
-layer.addRoute(routeID: layerID, styleID: styleID, zOrder: 0, segments: args.toRouteSegment() ).show()
-}
+            route = layer.addRoute(option: routeOptions)
+        }
 
-if layer.layerID.isEmpty {
-            result(layer.layerID)
+        if route == nil {
+            result(nil)
 
             return
         }
 
+        let fillEffect = ProgressAnimationEffect(direction: .forward, type: .fillFromStart)
+
+        fillEffect.interpolation = AnimationInterpolation(duration: 1000, method: .linear)
+
+        _ = manager.addRouteAnimator(animatorID: "routeAnimator", effect: fillEffect)
+
+        guard let animator = manager.getRouteAnimator(animatorID: "routeAnimator") else {
+            result(FlutterError(code: "NOT_ROUTE_ANIMATOR", message: "routeAnimator is nil", details: nil))
+            return
+        }
+
+        guard let bgRoutes = manager.getRouteLayer(layerID: layer.layerID)?.getRoute(routeID: route?.routeID ?? "route") else {
+            result(FlutterError(code: "NOT_ROUTE", message: "route is nil", details: nil))
+            return
+        }
+
+        animator.addRoute(bgRoutes)
+        animator.start()
+
+        result(route?.routeID)
     }
 
-    func moveRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func moveRouteLine(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("moveRouteLine")
+
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let layerID = arguments["layerId"] as? String ?? "routeLine"
+        let lineId = arguments["lineId"] as? String ?? "routeId"
+        let styleID = arguments["styleId"] as? String ?? "routeStyle"
+        let point = (arguments["point"] as! NSDictionary).toMapPoint()
+
+        let routeManager = mapView.getRouteManager()
+
+        guard let routeLine = routeManager.getRouteLayer(layerID: layerID) else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE_LAYER", message: "route layer is nil", details: nil))
+            return
+        }
+
+        guard let route = routeLine.getRoute(routeID: lineId) else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE", message: "route is nil", details: nil))
+            return
+        }
+
+        result(route.routeID)
     }
 
-    func modifyRouteLine(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func modifyRouteLine(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("modifyRouteLine")
+
+        result(nil)
     }
 
-    func addShapePolygon(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func addShapePolygon(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addShapePolygon")
+
+        result(nil)
     }
 
-    func addLodLabel(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func addLodLabel(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addLodLabel")
+
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let labelManager = mapView.getLabelManager()
+
+        let position = arguments["position"] as! NSDictionary
+        let layerID = arguments["layerID"] as? String ?? "warningLayer"
+        let styleID = arguments["styleID"] as! String
+        let poiID = position["labelId"] as! String
+
+        guard let lodLabelLayer = labelManager.getLodLabelLayer(layerID: layerID) else {
+            result(FlutterError(code: "NOT_FOUND_LOD_LABEL_LAYER", message: "lod label layer is nil", details: nil))
+            return
+        }
+        let option = PoiOptions(styleID: styleID, poiID: poiID)
+
+        option.clickable = true
+
+        guard let poi = lodLabelLayer.addLodPoi(option: option, at: position.toMapPoint()) else {
+            result(FlutterError(code: "FAILED_ADD", message: "failed add poi", details: nil))
+            return
+        }
+        poi.show()
+
+        result(poi.itemID)
     }
 
-    func removeLodLabel(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func removeLodLabel(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("removeLodLabel")
+
+        result(nil)
     }
 
-    func addLodLabels(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func addLodLabels(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addLodLabels")
+
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let labelManager = mapView.getLabelManager()
+
+        let layerID = arguments["layerID"] as? String ?? "warningLayer"
+        let styleID = arguments["styleID"] as! String
+        let positions = arguments["positions"] as! [NSDictionary]
+
+        guard let lodLabelLayer = labelManager.getLodLabelLayer(layerID: layerID) else {
+            result(FlutterError(code: "NOT_FOUND_LOD_LABEL_LAYER", message: "lod label layer is nil", details: nil))
+            return
+        }
+
+        var options: [PoiOptions] = []
+        var points: [MapPoint] = []
+
+        for position in positions {
+            let poiID = position["labelId"] as! String
+            let option = PoiOptions(styleID: styleID, poiID: poiID)
+
+            option.clickable = true
+
+            options.append(option)
+            points.append(position.toMapPoint())
+        }
+        let pois = lodLabelLayer.addLodPois(options: options, at: points)
+
+        lodLabelLayer.showAllLodPois()
+
+        result(pois?.map { $0.itemID })
     }
 
     func addPoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -169,8 +282,10 @@ if layer.layerID.isEmpty {
         result(poi.itemID)
     }
 
-    func movePoi(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func movePoi(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("movePoi")
+
+        result(nil)
     }
 
     func removePoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -196,8 +311,10 @@ if layer.layerID.isEmpty {
         result(nil)
     }
 
-    func addRouteLineStyle(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func addRouteLineStyle(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addRouteLineStyle")
+
+        result(nil)
     }
 
     func addPoiIconStyle(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -222,8 +339,9 @@ if layer.layerID.isEmpty {
 
                 let height = badge["height"] as! Double
                 let width = badge["width"] as! Double
+                let size = CGSize(width: width, height: height)
 
-                let image = UIImage(contentsOfFile: imagePath)?.resized(to: CGSize(width: width, height: height))
+                let image = UIImage(contentsOfFile: imagePath)?.resized(to: size)
 
                 let offset = (badge["offset"] as! NSDictionary).toCGPoint()
                 let zOrder = badge["zOrder"] as! Int
@@ -236,8 +354,9 @@ if layer.layerID.isEmpty {
 
             let height = style["height"] as! Double
             let width = style["width"] as! Double
+            let size = CGSize(width: width, height: height)
 
-            let symbol = UIImage(contentsOfFile: symbolPath)?.resized(to: CGSize(width: width, height: height))
+            let symbol = UIImage(contentsOfFile: symbolPath)?.resized(to: size)
 
             let anchorPoint = (style["anchorPoint"] as! NSDictionary).toCGPoint()
             let level = style["level"] as! Int
@@ -303,8 +422,22 @@ if layer.layerID.isEmpty {
         result(nil)
     }
 
-    func addLodLabelLayer(arguments _: NSDictionary, result _: @escaping (Any?) -> Void) {
+    func addLodLabelLayer(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addLodLabelLayer")
+
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let labelManager = mapView.getLabelManager()
+
+        guard let labelLayer = labelManager.addLodLabelLayer(option: arguments.toLodLabelLayerOptions()) else {
+            result(FlutterError(code: "FAILED_ADD", message: "failed add lodLabelLayer", details: nil))
+            return
+        }
+
+        result(nil)
     }
 
     func moveCamera(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -432,8 +565,10 @@ if layer.layerID.isEmpty {
         result(nil)
     }
 
-    func getCameraPosition(result _: @escaping (Any?) -> Void) {
+    func getCameraPosition(result: @escaping (Any?) -> Void) {
         printLog("getCameraPosition")
+
+        result(nil)
     }
 
     func setViewInfo(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -729,6 +864,11 @@ if layer.layerID.isEmpty {
                 mapView.setScaleBarAutoDisappear(options.scaleBarOptions.autoDisabled)
                 mapView.setScaleBarFadeInOutOption(options.scaleBarOptions.fadeInOutOptions)
 
+                mapView.cameraMaxLevel = 20
+                mapView.cameraMinLevel = 8
+
+                mapView.eventDelegate = self
+
                 viewMethodChannel.invokeMethod("onMapReady", arguments: nil)
             }
         }
@@ -749,5 +889,33 @@ if layer.layerID.isEmpty {
         }
 
         return mapViewContainer
+    }
+
+    nonisolated func cameraDidStopped(kakaoMap: KakaoMap, by: MoveBy) {
+        let cameraPosition = kakaoMap.getPosition(CGPoint(x: 0, y: 0))
+        let cameraPositionData: [String: Any] = [
+            "height": kakaoMap.cameraHeight,
+            "rotationAngle": kakaoMap.rotationAngle,
+            "tiltAngle": kakaoMap.tiltAngle,
+            "zoomLevel": kakaoMap.zoomLevel,
+            "position": [
+                "latitude": cameraPosition.wgsCoord.latitude,
+                "longitude": cameraPosition.wgsCoord.longitude,
+            ],
+            "gestureType": by.rawValue,
+        ]
+
+        DispatchQueue.main.async {
+            self.viewMethodChannel.invokeMethod("cameraPosition", arguments: cameraPositionData)
+        }
+    }
+
+    nonisolated func poiDidTapped(kakaoMap _: KakaoMap, layerID _: String, poiID: String, position: MapPoint) {
+        let onTap: [String: Any] = [
+            "labelId": poiID,
+            "latitude": position.wgsCoord.latitude,
+            "longitude": position.wgsCoord.longitude,
+        ]
+        viewMethodChannel.invokeMethod("onLodLabelClicked", arguments: onTap)
     }
 }
