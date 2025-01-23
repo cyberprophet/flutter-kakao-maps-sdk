@@ -45,8 +45,10 @@ class KakaoMapLabelLayer {
 
   Future removeLodLabel(String? labelId) async {
     if (labelId != null && labelId.isNotEmpty) {
-      await viewMethodChannel
-          .invokeMethod('removeLodLabel', {'labelId': labelId});
+      await viewMethodChannel.invokeMethod(
+        'removeLodLabel',
+        {"layerID": layerId, 'labelId': labelId},
+      );
     }
   }
 
