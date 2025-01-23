@@ -108,12 +108,13 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
             routeOptions.segments = [routeSegment]
 
             route = layer.addRoute(option: routeOptions)
-        }
 
-        if route == nil {
-            result(nil)
+            if route == nil {
+                result(nil)
 
-            return
+                return
+            }
+            route!.userObject = routeSegment
         }
 
         let fillEffect = ProgressAnimationEffect(direction: .forward, type: .fillFromStart)
@@ -163,19 +164,116 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
             return
         }
 
+        guard let routeSegment = route.userObject as? RouteSegment else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE_SEGMENT", message: "route segment is nil", details: nil))
+            return
+        }
+
+        var mapPoints: [MapPoint] = Array(routeSegment.points)
+
+        mapPoints.append(point)
+
+        let rs = RouteSegment(points: mapPoints, styleIndex: routeSegment.styleIndex)
+
+        route.changeStyleAndData(styleID: styleID, segments: [rs])
+
+        route.userObject = rs
+
         result(route.routeID)
     }
 
-    func modifyRouteLine(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
+    func modifyRouteLine(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("modifyRouteLine")
 
-        result(nil)
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let layerID = arguments["layerId"] as? String ?? "routeLine"
+        let lineId = arguments["lineId"] as? String ?? "routeId"
+        let styleID = arguments["styleId"] as? String ?? "routeStyle"
+        let point = (arguments["point"] as! NSDictionary).toMapPoint()
+
+        let routeManager = mapView.getRouteManager()
+
+        guard let routeLine = routeManager.getRouteLayer(layerID: layerID) else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE_LAYER", message: "route layer is nil", details: nil))
+            return
+        }
+
+        guard let route = routeLine.getRoute(routeID: lineId) else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE", message: "route is nil", details: nil))
+            return
+        }
+
+        guard let routeSegment = route.userObject as? RouteSegment else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE_SEGMENT", message: "route segment is nil", details: nil))
+            return
+        }
+
+        var mapPoints: [MapPoint] = Array(routeSegment.points.dropLast(1))
+
+        mapPoints.append(point)
+
+        let rs = RouteSegment(points: mapPoints, styleIndex: routeSegment.styleIndex)
+
+        route.changeStyleAndData(styleID: styleID, segments: [rs])
+
+        route.userObject = rs
+
+        result(route.routeID)
     }
 
-    func addShapePolygon(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
+    func addShapePolygon(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addShapePolygon")
 
-        result(nil)
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let shapeManager = mapView.getShapeManager()
+
+        let layerID = arguments["layerID"] as? String ?? "shapeLayer"
+        let point = (arguments["position"] as! NSDictionary).toMapPoint()
+        let circleRadius = arguments["circleRadius"] as! Double
+        let circleColor = arguments["circleColor"] as! Int
+        let polygonRadius = arguments["polygonRadius"] as! Double
+        let holeColor = arguments["holeColor"] as! Int
+
+        guard let shapeLayer = shapeManager.addShapeLayer(layerID: layerID, zOrder: 13795, passType: .overlay) else {
+            result(FlutterError(code: "NOT_FOUND_SHAPE_LAYER", message: "shape layer is nil", details: nil))
+            return
+        }
+
+        let circlePerStyle = PerLevelPolygonStyle(color: UIColor(hex: circleColor), level: 0)
+        let holePerStyle = PerLevelPolygonStyle(color: UIColor(hex: holeColor), level: 0)
+
+        let circleStyle = PolygonStyle(styles: [circlePerStyle])
+        let holeStyle = PolygonStyle(styles: [holePerStyle])
+        let styleSet = PolygonStyleSet(styleSetID: "ShapeStyle", styles: [circleStyle, holeStyle])
+
+        shapeManager.addPolygonStyleSet(styleSet)
+
+        let options = PolygonShapeOptions(styleID: "ShapeStyle", zOrder: 0x10)
+
+        let circle = Primitives.getCirclePoints(radius: circleRadius, numPoints: 120, cw: true)
+        let hole = Primitives.getCirclePoints(radius: polygonRadius, numPoints: 360, cw: true)
+
+        let circlePolygon = Polygon(exteriorRing: circle, hole: nil, styleIndex: 0)
+        let holePolygon = Polygon(exteriorRing: hole, hole: circle, styleIndex: 1)
+
+        options.basePosition = point
+
+        options.polygons.append(circlePolygon)
+        options.polygons.append(holePolygon)
+
+        let polygonShape = shapeLayer.addPolygonShape(options)
+
+        polygonShape?.show()
+
+        result(polygonShape?.layerID)
     }
 
     func addLodLabel(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -210,10 +308,26 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         result(poi.itemID)
     }
 
-    func removeLodLabel(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
+    func removeLodLabel(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("removeLodLabel")
 
-        result(nil)
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+        let layerID = arguments["layerID"] as? String ?? "warningLayer"
+        let poiID = arguments["labelId"] as! String
+
+        let labelManager = mapView.getLabelManager()
+
+        guard let lodLabelLayer = labelManager.getLodLabelLayer(layerID: layerID) else {
+            result(FlutterError(code: "NOT_FOUND_LOD_LABEL_LAYER", message: "lod label layer is nil", details: nil))
+            return
+        }
+
+        lodLabelLayer.removeLodPoi(poiID: poiID)
+
+        result(poiID)
     }
 
     func addLodLabels(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -282,10 +396,33 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         result(poi.itemID)
     }
 
-    func movePoi(arguments _: NSDictionary, result: @escaping (Any?) -> Void) {
+    func movePoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("movePoi")
 
-        result(nil)
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+        let poiID = arguments["poiID"] as! String
+        let layerID = arguments["layerID"] as! String
+        let point = (arguments["at"] as! NSDictionary).toMapPoint()
+        let duration = arguments["milliseconds"] as! Int
+
+        let labelManager = mapView.getLabelManager()
+
+        guard let labelLayer = labelManager.getLabelLayer(layerID: layerID) else {
+            result(FlutterError(code: "NOT_FOUND_LABEL_LAYER", message: "labelLayer is nil", details: nil))
+            return
+        }
+
+        guard let poi = labelLayer.getPoi(poiID: poiID) else {
+            result(FlutterError(code: "NOT_FOUND_POI", message: "poi is nil", details: nil))
+            return
+        }
+
+        poi.moveAt(point, duration: UInt(duration))
+
+        result(poi.itemID)
     }
 
     func removePoi(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
@@ -339,7 +476,7 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
 
                 let height = badge["height"] as! Double
                 let width = badge["width"] as! Double
-                let size = CGSize(width: width, height: height)
+                let size = CGSize(width: width * 1.5, height: height * 1.5)
 
                 let image = UIImage(contentsOfFile: imagePath)?.resized(to: size)
 
@@ -354,7 +491,7 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
 
             let height = style["height"] as! Double
             let width = style["width"] as! Double
-            let size = CGSize(width: width, height: height)
+            let size = CGSize(width: width * 1.5, height: height * 1.5)
 
             let symbol = UIImage(contentsOfFile: symbolPath)?.resized(to: size)
 

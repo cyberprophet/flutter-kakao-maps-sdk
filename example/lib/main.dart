@@ -1112,8 +1112,6 @@ class _MapLayerViewState extends State<MapLayerView> {
                         .then((capturedImage) async {
                       setState(() {
                         _image = Image.memory(capturedImage!);
-
-                        print(_image);
                       });
                     }).catchError((onError) {
                       if (kDebugMode) {
@@ -1124,17 +1122,13 @@ class _MapLayerViewState extends State<MapLayerView> {
                       styleID: "style1",
                     );
                     if (context.mounted) Navigator.pop(context);
-/*
+
                     kakaoMapController.addPolygon(const KakaoMapPolygon(
                       point: KakaoMapPoint(
                         longitude: 127.108678,
                         latitude: 37.402001,
                       ),
                     ));
-*/
-                    // if (kDebugMode) {
-                    //   print((await kakaoMapController.takeSnapshot()).length);
-                    // }
                   },
                   child: const Text("STYLE1"),
                 ),
@@ -1172,7 +1166,7 @@ class _MapLayerViewState extends State<MapLayerView> {
                         point
                       ],
                     );
-                    //await poi.movePoi(at: point, poiId: poi.id);
+                    await poi.movePoi(at: point, poiId: poi.id);
 
                     if (context.mounted) Navigator.pop(context);
 
@@ -1211,7 +1205,7 @@ class _MapLayerViewState extends State<MapLayerView> {
           },
           onLodLabelClicked: (label) async {
             if (kDebugMode) {
-              print(await labelLayer.removeLodLabel(label.labelId));
+              print(await lodLabelLayer.removeLodLabel(label.labelId));
             }
           },
           onMapReady: (controller) async {
@@ -1236,8 +1230,8 @@ class _MapLayerViewState extends State<MapLayerView> {
               styles: [
                 const KakaoMapPoiIconStyle(
                   symbol: "assets/buttons/btn_warning_location.png",
-                  height: 20,
-                  width: 20,
+                  height: 18,
+                  width: 18,
                   anchorPoint: KakaoMapPoint(longitude: 0.5, latitude: 1),
                 ),
               ],
