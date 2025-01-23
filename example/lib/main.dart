@@ -43,8 +43,6 @@ class MainView extends StatefulWidget {
 class _ViewState extends State<MainView> {
   final screenshotController = ScreenshotController();
 
-  MemoryImage? _image;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,9 +56,7 @@ class _ViewState extends State<MainView> {
                   pixelRatio: MediaQuery.of(context).devicePixelRatio * 2,
                   delay: const Duration(milliseconds: 0x200))
               .then((capturedImage) async {
-            setState(() {
-              _image = MemoryImage(capturedImage!);
-            });
+            setState(() => MemoryImage(capturedImage!));
           }).catchError((onError) {
             if (kDebugMode) {
               print(onError);

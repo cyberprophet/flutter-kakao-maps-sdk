@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Implemented to work on iOS as well.
+
 ## 1.0.2
 
 - Ability to modify movement path
