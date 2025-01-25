@@ -1,3 +1,7 @@
+## 1.0.4
+
+- Fix error when layer is null
+
 ## 1.0.3
 
 - Implemented to work on iOS as well.

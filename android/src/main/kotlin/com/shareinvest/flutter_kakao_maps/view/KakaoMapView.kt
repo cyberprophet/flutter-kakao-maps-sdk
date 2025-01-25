@@ -172,7 +172,7 @@ internal class KakaoMapView(
         )
 
         if (layer.lineId.isNullOrEmpty()) {
-            result.success(layer.lineId)
+            result.success(null)
 
             return
         }
