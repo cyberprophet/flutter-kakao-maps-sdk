@@ -31,6 +31,10 @@ class KakaoMapLabelLayer {
     return KakaoMapRouteLine(layerId, id, viewMethodChannel);
   }
 
+  Future removeAllRouteLine() async {
+    await viewMethodChannel.invokeMethod('removeAllRouteLine');
+  }
+
   Future<KakaoMapPoi> addLodLabel({
     required String styleId,
     required KakaoMapPoint position,

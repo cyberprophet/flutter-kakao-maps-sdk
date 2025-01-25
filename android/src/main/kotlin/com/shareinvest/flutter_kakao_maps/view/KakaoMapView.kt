@@ -73,8 +73,10 @@ internal class KakaoMapView(
             "addRouteLine" -> addRouteLine(call.arguments as JSONObject, result)
             "moveRouteLine" -> moveRouteLine(call.arguments as JSONObject, result)
             "modifyRouteLine" -> modifyRouteLine(call.arguments as JSONObject, result)
+            "removeAllRouteLine" -> removeAllRouteLine(result)
 
             "addShapePolygon" -> addShapePolygon(call.arguments as JSONObject, result)
+            "removeAllShapePolygon" -> removeAllShapePolygon(result)
 
             "addLodLabel" -> addLodLabel(call.arguments as JSONObject, result)
             "removeLodLabel" -> removeLodLabel(call.arguments as JSONObject, result)
@@ -239,6 +241,24 @@ internal class KakaoMapView(
         result.success(routeLine.lineId)
     }
 
+    private fun removeAllRouteLine(result: MethodChannel.Result) {
+        printLog("removeAllRouteLine")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val routeLineManager = mapView.routeLineManager ?: run {
+            result.error("NOT_FOUND_ROUTE_LINE_MANAGER", "routeLineManager is null", null)
+            return
+        }
+
+        routeLineManager.layer.removeAll()
+
+        result.success(null)
+    }
+
     private fun addShapePolygon(arguments: JSONObject, result: MethodChannel.Result) {
         Log.d("addShapePolygon", "$arguments")
 
@@ -248,7 +268,7 @@ internal class KakaoMapView(
         }
 
         val shapeManager = mapView.shapeManager ?: run {
-            result.error("NOT_FOUND_LABEL_MANAGER", "labelManager is null", null)
+            result.error("NOT_FOUND_LABEL_MANAGER", "shapeManager is null", null)
             return
         }
 
@@ -275,6 +295,26 @@ internal class KakaoMapView(
             put("circleId", circle.id)
             put("polygonId", polygon.id)
         })
+    }
+
+    private fun removeAllShapePolygon(result: MethodChannel.Result) {
+        printLog("removeAllShapePolygon")
+
+        val mapView = mapView ?: run {
+            result.error("NOT_FOUND_MAPVIEW", "mapView is null", null)
+            return
+        }
+
+        val shapeManager = mapView.shapeManager ?: run {
+            result.error("NOT_FOUND_LABEL_MANAGER", "shapeManager is null", null)
+            return
+        }
+
+        val shapeLayer = shapeManager.layer
+
+        shapeLayer.removeAll()
+
+        result.success(null)
     }
 
     private fun addLodLabel(arguments: JSONObject, result: MethodChannel.Result) {
