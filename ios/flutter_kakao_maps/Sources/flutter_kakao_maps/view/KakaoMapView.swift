@@ -24,7 +24,9 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         case "addRouteLine": addRouteLine(arguments: call.arguments as! NSDictionary, result: result)
         case "moveRouteLine": moveRouteLine(arguments: call.arguments as! NSDictionary, result: result)
         case "modifyRouteLine": modifyRouteLine(arguments: call.arguments as! NSDictionary, result: result)
+        case "removeAllRouteLine": removeAllRouteLine(result: result)
         case "addShapePolygon": addShapePolygon(arguments: call.arguments as! NSDictionary, result: result)
+        case "removeAllShapePolygon": removeAllShapePolygon(result: result)
         case "addLodLabel": addLodLabel(arguments: call.arguments as! NSDictionary, result: result)
         case "removeLodLabel": removeLodLabel(arguments: call.arguments as! NSDictionary, result: result)
         case "addLodLabels": addLodLabels(arguments: call.arguments as! NSDictionary, result: result)
@@ -225,6 +227,25 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         result(route.routeID)
     }
 
+    func removeAllRouteLine(result: @escaping (Any?) -> Void){
+        printLog("modifyRouteLine")
+
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+let routeManager = mapView.getRouteManager()
+
+        guard let routeLine = routeManager.getRouteLayer(layerID: layerID) else {
+            result(FlutterError(code: "NOT_FOUND_ROUTE_LAYER", message: "route layer is nil", details: nil))
+            return
+        }
+
+        routeLine.clearAllRoutes()
+
+result(nil)
+    }
+
     func addShapePolygon(arguments: NSDictionary, result: @escaping (Any?) -> Void) {
         printLog("addShapePolygon")
 
@@ -274,6 +295,25 @@ class KakaoMapView: NSObject, @preconcurrency FlutterPlatformView, @preconcurren
         polygonShape?.show()
 
         result(polygonShape?.layerID)
+    }
+
+    func removeAllShapePolygon(result: @escaping (Any?) -> Void){
+        printLog("removeAllShapePolygon")
+
+        guard let mapView = mapView else {
+            result(FlutterError(code: "NOT_FOUND_MAPVIEW", message: "mapView is nil", details: nil))
+            return
+        }
+
+        let shapeManager = mapView.getShapeManager()
+
+        guard let shapeLayer = shapeManager.addShapeLayer(layerID: layerID, zOrder: 13795, passType: .overlay) else {
+            result(FlutterError(code: "NOT_FOUND_SHAPE_LAYER", message: "shape layer is nil", details: nil))
+            return
+        }
+        shapeLayer.clearAllShapes()
+
+        result(nil)
     }
 
     func addLodLabel(arguments: NSDictionary, result: @escaping (Any?) -> Void) {

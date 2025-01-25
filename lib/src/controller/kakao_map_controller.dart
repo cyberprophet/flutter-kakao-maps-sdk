@@ -119,6 +119,10 @@ class KakaoMapController {
     );
   }
 
+  Future removeAllShapePolygon() async {
+    await _viewMethodChannel.invokeMethod('removeAllShapePolygon');
+  }
+
   /// 카메라 이동
   ///
   /// [point] 카메라가 바라보는 지점의 KakaoMapPoint

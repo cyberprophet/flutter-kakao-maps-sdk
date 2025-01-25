@@ -1143,6 +1143,8 @@ class _MapLayerViewState extends State<MapLayerView> {
                         latitude: 37.303101,
                       ),
                     );
+
+                    await labelLayer.removeAllRouteLine();
                   },
                   child: const Text("STYLE2"),
                 ),
@@ -1182,6 +1184,8 @@ class _MapLayerViewState extends State<MapLayerView> {
                       longitude: 127.108678,
                       latitude: 37.402001,
                     ));
+
+                    await kakaoMapController.removeAllShapePolygon();
                   },
                   child: const Text("Move"),
                 ),
