@@ -1,17 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_kakao_map_api/flutter_kakao_maps.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:screenshot/screenshot.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  KakaoMapsSDK.instance.init(
-    appKey: 'YOUR NATIVE API KEY',
-    debug: kDebugMode,
-  );
+  if (kDebugMode) {
+    await dotenv.load(fileName: '.env');
+
+    KakaoMapsSDK.instance.init(
+      appKey: dotenv.env['NATIVE']!,
+      debug: kDebugMode,
+    );
+    print(await KakaoSdk.origin);
+  }
   runApp(const MyApp());
 }
 
@@ -691,6 +698,31 @@ class _MapPoiViewState extends State<MapPoiView> {
                 ),
                 CupertinoActionSheetAction(
                   onPressed: () async {
+                    await kakaoMapController.addPoiIconStyle(
+                      styleID: "style1",
+                      styles: [
+                        const KakaoMapPoiIconStyle(
+                          symbol: "assets/pin.png",
+                          height: 10,
+                          width: 10,
+                          anchorPoint:
+                              KakaoMapPoint(longitude: 0.5, latitude: 1),
+                        ),
+                      ],
+                    );
+
+                    await kakaoMapController.addPoiIconStyle(
+                      styleID: "style2",
+                      styles: [
+                        const KakaoMapPoiIconStyle(
+                          symbol: "assets/buttons/btn_warning_location.png",
+                          height: 18,
+                          width: 18,
+                          anchorPoint:
+                              KakaoMapPoint(longitude: 0.5, latitude: 1),
+                        ),
+                      ],
+                    );
                     await kakaoMapController.setPoiOptions(
                         poiOptions: const KakaoMapPoiOptions(
                             scale: KakaoMapPoiScale.small));
@@ -700,6 +732,31 @@ class _MapPoiViewState extends State<MapPoiView> {
                 ),
                 CupertinoActionSheetAction(
                   onPressed: () async {
+                    await kakaoMapController.addPoiIconStyle(
+                      styleID: "style1",
+                      styles: [
+                        const KakaoMapPoiIconStyle(
+                          symbol: "assets/pin.png",
+                          height: 10,
+                          width: 10,
+                          anchorPoint:
+                              KakaoMapPoint(longitude: 0.5, latitude: 1),
+                        ),
+                      ],
+                    );
+
+                    await kakaoMapController.addPoiIconStyle(
+                      styleID: "style2",
+                      styles: [
+                        const KakaoMapPoiIconStyle(
+                          symbol: "assets/buttons/btn_warning_location.png",
+                          height: 18,
+                          width: 18,
+                          anchorPoint:
+                              KakaoMapPoint(longitude: 0.5, latitude: 1),
+                        ),
+                      ],
+                    );
                     await kakaoMapController.setPoiOptions(
                         poiOptions: const KakaoMapPoiOptions(
                             scale: KakaoMapPoiScale.regular));

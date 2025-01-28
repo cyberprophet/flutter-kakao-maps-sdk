@@ -519,7 +519,7 @@ class KakaoMapView: NSObject, FlutterPlatformView, MapControllerDelegate, KakaoM
 
                 let height = badge["height"] as! Double
                 let width = badge["width"] as! Double
-                let size = CGSize(width: width * 1.5, height: height * 1.5)
+                let size = CGSize(width: width , height: height )
 
                 let image = UIImage(contentsOfFile: imagePath)?.resized(to: size)
 
@@ -534,7 +534,7 @@ class KakaoMapView: NSObject, FlutterPlatformView, MapControllerDelegate, KakaoM
 
             let height = style["height"] as! Double
             let width = style["width"] as! Double
-            let size = CGSize(width: width * 1.5, height: height * 1.5)
+            let size = CGSize(width: width , height: height )
 
             let symbol = UIImage(contentsOfFile: symbolPath)?.resized(to: size)
 
